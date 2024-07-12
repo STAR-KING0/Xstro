@@ -8,6 +8,9 @@ RUN git clone https://github.com/AstroFx0011/Xstro /root/bot
 # Remove .git directory to reduce image size
 RUN rm -rf .git
 WORKDIR /root/bot
+COPY package.json .
+RUN npm install
+COPY . .
 EXPOSE 8000
 ENV NODE_ENV production
 CMD ["npm", "start"]
