@@ -5,7 +5,6 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 RUN git clone https://github.com/AstroFx0011/Xstro /root/bot
-RUN npm update && npm upgrade
 # Remove .git directory to reduce image size
 RUN rm -rf .git
 WORKDIR /root/luv
