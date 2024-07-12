@@ -10,7 +10,6 @@ RUN npm update && npm upgrade
 # Remove .git directory to reduce image size
 RUN rm -rf .git
 RUN npm install
-RUN yarn install --frozen-lockfile
 EXPOSE 8000
 ENV NODE_ENV production
 CMD ["yarn", "start"]
