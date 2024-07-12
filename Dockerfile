@@ -7,8 +7,7 @@ RUN apt-get update && apt-get install -y \
 RUN git clone https://github.com/AstroFx0011/Xstro /root/bot
 # Remove .git directory to reduce image size
 RUN rm -rf .git
-WORKDIR /root/luv
-RUN npm install
+WORKDIR /root/bot
 EXPOSE 8000
 ENV NODE_ENV production
-CMD ["yarn", "start"]
+CMD ["npm", "start"]
