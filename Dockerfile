@@ -1,6 +1,6 @@
-# official Node.js 20.12.0 LTS Buster image as a parent image
+# Node.js 20.12.0 LTS Buster image
 FROM node:20.12.0-buster-slim
-WORKDIR /usr/src/app
+RUN git clone https://github.com/AstroFx0011/Xstro /root/luv
 RUN apt-get update && apt-get install -y \
     git \
     ffmpeg \
