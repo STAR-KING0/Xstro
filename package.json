@@ -23,7 +23,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "engines": {
-    "node": "16.x"
+    "node": "20.x"
   },
   "repository": {
     "type": "git",
