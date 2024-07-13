@@ -188,7 +188,8 @@ Index(
 
 Index(
   {
-    on: 'text',
+    on: 'text', 
+    dontAddCommandList: true, 
   },
   async message => {
     try {
@@ -505,7 +506,6 @@ Index(
   {
     pattern: 'rmbg',
     category: 'ai',
-
     desc: 'Remove image Background.',
   },
   async message => {
