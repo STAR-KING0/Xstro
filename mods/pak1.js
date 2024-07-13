@@ -59,7 +59,7 @@ async function getallMenu(client, message) {
     });
 
     let menuText = `
-╭═══⋪ ${config.ownername} ⋫═══⊷
+╭═══ ${config.ownername} ═══⊷
 ┃✵╭──────────────
 ┃✵│ \`\`\`Owner\`\`\` ${config.ownername}
 ┃✵│ \`\`\`Plugins\`\`\` ${commands.length}
@@ -69,12 +69,11 @@ async function getallMenu(client, message) {
 ┃✵│ \`\`\`Date\`\`\` ${client.date}
 ┃✵│ \`\`\`Version\`\`\` ${config.VERSION}
 │✵╰────────────┈⊷
-╰═════════════════⊷
-${readmore}\n`;
+╰═════════════════⊷\n`;
 
     // Append commands for each category
     for (const category in categoryCommandsMap) {
-      menuText += `╭═══⋪ ${tiny(category)} ⋫═══⊷\n`;
+      menuText += `╭═══ ${tiny(category)} ═══⊷\n`;
       for (const command of categoryCommandsMap[category]) {
         menuText += `┃✵│ ${fancytext(command, 1)}\n`;
       }
