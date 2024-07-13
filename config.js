@@ -68,13 +68,13 @@ module.exports = {
 
   HANDLERS: process.env.PREFIX  || ".",
   BRANCH  : process.env.BRANCH  || "main",
-  VERSION : process.env.VERSION || "1.3.1",
-  caption : process.env.CAPTION || "©sᴜʜᴀɪʟ²²¹-ᴍᴅ" ,
+  VERSION : process.env.VERSION || "1.0.0",
+  caption : process.env.CAPTION || "©Xstro" ,
  
-  author : process.env.PACK_AUTHER|| "Suhail-MD",
+  author : process.env.PACK_AUTHER|| "Xstro",
   packname: process.env.PACK_NAME || "♥️",
-  botname : process.env.BOT_NAME  || "sᴜʜᴀɪʟ-ᴍᴅ",
-  ownername:process.env.OWNER_NAME|| "It'x Suhail",
+  botname : process.env.BOT_NAME  || "Xstro Bot",
+  ownername:process.env.OWNER_NAME|| "Xstro",
 
 
   errorChat : process.env.ERROR_CHAT || "",
