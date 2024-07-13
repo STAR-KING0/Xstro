@@ -1,8 +1,6 @@
 const os = require('os');
 const config = require('../config');
 let { fancytext, tlang, tiny, runtime, formatp, prefix } = require('../lib');
-const long = String.fromCharCode(8206);
-const readmore = long.repeat(4001);
 const { commands } = require('../lib');
 const { exec } = require('child_process');
 const translatte = require('translatte');
@@ -59,7 +57,7 @@ async function getallMenu(client, message) {
     });
 
     let menuText = `
-╭═══ ${config.ownername} ═══⊷
+╭═════ ${config.ownername} ═════❍
 ┃✵╭──────────────
 ┃✵│ \`\`\`Owner\`\`\` ${config.ownername}
 ┃✵│ \`\`\`Plugins\`\`\` ${commands.length}
@@ -69,11 +67,11 @@ async function getallMenu(client, message) {
 ┃✵│ \`\`\`Date\`\`\` ${client.date}
 ┃✵│ \`\`\`Version\`\`\` ${config.VERSION}
 │✵╰────────────┈⊷
-╰═════════════════⊷\n`;
+╰═════════════════❍\n`;
 
     // Append commands for each category
     for (const category in categoryCommandsMap) {
-      menuText += `╭═══ ${tiny(category)} ═══⊷\n`;
+      menuText += `╭═════ ${tiny(category)} ════❍\n`;
       for (const command of categoryCommandsMap[category]) {
         menuText += `┃✵│ ${fancytext(command, 1)}\n`;
       }

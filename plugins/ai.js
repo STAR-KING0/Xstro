@@ -1,13 +1,35 @@
 const fs = require('fs-extra');
 const { TelegraPh, aitts, Index, prefix, Config, parsedJid, sleep, Draw, getDateTime } = require('../lib');
-const axios = require('axios');
 const fetch = require('node-fetch');
-const { aiResponse } = require('../mods');
+const { aiResponse, gpt4 } = require('../mods');
+Index(
+  {
+    pattern: 'gpt4',
+    desc: 'chat with gpt4',
+    type: 'ai',
+  },
+  async (message, query) => {
+    try {
+      query = query || message.reply_text;
+      if (!query) {
+        return message.reply('*_Need Text_*');
+      }
+      const response = await gpt4(query);
+      if (response) {
+        return await message.reply(response);
+      } else {
+        return await message.reply('Gpt4 Error, Sorry');
+      }
+    } catch (error) {
+      await message.error(`${error}\n\ncommand: gpt`, error);
+    }
+  }
+);
 Index(
   {
     pattern: 'chat',
     desc: 'chat with an AI',
-    category: 'ai',
+    type: 'ai',
   },
   async (message, query) => {
     try {
@@ -22,7 +44,7 @@ Index(
   {
     pattern: 'gpt',
     desc: 'chat with an AI',
-    category: 'ai',
+    type: 'ai',
   },
   async (message, query) => {
     try {
@@ -62,7 +84,7 @@ Index(
   {
     pattern: 'gpt2',
     desc: 'chat with an AI',
-    category: 'ai',
+    type: 'ai',
   },
   async (message, query) => {
     try {
@@ -88,7 +110,7 @@ Index(
   {
     pattern: 'dalle',
     desc: 'chat with an AI',
-    category: 'ai',
+    type: 'ai',
   },
   async (message, query) => {
     try {
@@ -138,7 +160,7 @@ Index(
   {
     pattern: 'anmsg',
     desc: 'Send message Anonymously',
-    category: 'ai',
+    type: 'ai',
   },
   async (message, text, { smd: cmd }) => {
     try {
@@ -188,8 +210,8 @@ Index(
 
 Index(
   {
-    on: 'text', 
-    dontAddCommandList: true, 
+    on: 'text',
+    dontAddCommandList: true,
   },
   async message => {
     try {
@@ -313,9 +335,9 @@ async function processing(imageBuffer, endpoint) {
 
 Index(
   {
-    cmdname: 'hd',
+    pattern: 'hd',
     desc: 'enhance image quality!',
-    category: 'ai',
+    type: 'ai',
   },
   async message => {
     let quotedMessage = message.image ? message : message.reply_message;
@@ -335,9 +357,9 @@ Index(
 
 Index(
   {
-    cmdname: 'dehaze',
+    pattern: 'dehaze',
     desc: 'enhance image quality!',
-    category: 'ai',
+    type: 'ai',
   },
   async message => {
     let quotedMessage = message.image ? message : message.reply_message;
@@ -357,9 +379,9 @@ Index(
 
 Index(
   {
-    cmdname: 'recolor',
+    pattern: 'recolor',
     desc: 'enhance image quality!',
-    category: 'ai',
+    type: 'ai',
   },
   async message => {
     let quotedMessage = message.image ? message : message.reply_message;
@@ -379,42 +401,9 @@ Index(
 
 Index(
   {
-    pattern: 'blackbox',
-    desc: 'Get information and sources for a given text from Blackbox API.',
-    category: 'ai',
-  },
-  async (message, input) => {
-    try {
-      const text = input.trim();
-      if (!text) {
-        return await message.send('*_Please provide some text to query Blackbox._*');
-      }
-
-      const apiUrl = `https://aemt.me/blackbox?text=${encodeURIComponent(text)}`;
-      const response = await axios.get(apiUrl, {
-        headers: {
-          accept: 'application/json',
-        },
-      });
-
-      if (!response.data || !response.data.result) {
-        return await message.reply('*Failed to fetch information from Blackbox.*');
-      }
-
-      const { result } = response.data;
-      const messageToSend = `\nOk here we Go!: ${result}`;
-      return await message.send(messageToSend);
-    } catch (error) {
-      console.error('Error in Blackbox command:', error);
-      await message.error(error + '\n\nCommand: blackbox', error, '*Failed to fetch information from Blackbox.*');
-    }
-  }
-);
-Index(
-  {
     pattern: 'imagine',
     desc: 'Generate an image using AI',
-    category: 'ai',
+    type: 'ai',
   },
   async (message, query) => {
     try {
@@ -462,7 +451,7 @@ Index(
   {
     pattern: 'imagine2',
     desc: 'Generate an image using AI',
-    category: 'ai',
+    type: 'ai',
   },
   async (message, query) => {
     try {
@@ -505,7 +494,7 @@ Index(
 Index(
   {
     pattern: 'rmbg',
-    category: 'ai',
+    type: 'ai',
     desc: 'Remove image Background.',
   },
   async message => {
@@ -545,7 +534,7 @@ Index(
 Index(
   {
     pattern: 'ads',
-    category: 'ai',
+    type: 'ai',
     desc: 'Advertise your message by sending it to a provided number range.',
     fromMe: true,
   },
@@ -605,7 +594,7 @@ Index(
   {
     pattern: 'aitts',
     desc: 'Text to Voice Using Eleven Labs AI',
-    category: 'ai',
+    type: 'ai',
   },
   async (message, args) => {
     await aitts(message, args || message.reply_text);

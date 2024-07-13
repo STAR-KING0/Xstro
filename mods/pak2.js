@@ -1,5 +1,5 @@
 const axios = require('axios');
-
+const fetch = require('node-fetch');
 async function aiResponse(message, type, prompt = '') {
   let response = '';
   try {
@@ -86,4 +86,22 @@ async function removeBackground(imageUrl) {
   }
 }
 
-module.exports = { aiResponse };
+async function gpt4(query) {
+  const apiUrl = `https://gpt4.giftedtech.workers.dev/?prompt=${encodeURIComponent(query)}`;
+
+  try {
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+
+    if (data && data.status === true && data.code === 200 && data.result) {
+      return data.result;
+    } else {
+      throw new Error('Invalid response from GPT-4 API');
+    }
+  } catch (error) {
+    console.error('Error fetching from GPT-4 API:', error);
+    throw error;
+  }
+}
+
+module.exports = { gpt4, aiResponse };
