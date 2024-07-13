@@ -1,6 +1,7 @@
 const { bot } = require('../lib');
 const { insta, instaStory } = require('../mods');
-
+const path = require('path')
+const fs = require('fs')
 bot(
   {
     pattern: 'insta',
