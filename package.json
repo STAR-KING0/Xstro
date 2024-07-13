@@ -57,6 +57,7 @@
     "human-readable": "^0.2.1",
     "jimp": "^0.16.13",
     "jsdom": "^24.1.0",
+    "libsignal-node": "https://github.com/adiwajshing/libsignal-node.git",
     "koyeb-api-client": "^0.0.1",
     "link-preview-js": "^3.0.5",
     "lint": "^0.8.19",
