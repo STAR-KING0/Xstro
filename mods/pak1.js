@@ -73,7 +73,7 @@ async function getallMenu(client, message) {
     for (const category in categoryCommandsMap) {
       menuText += `╭═════ ${tiny(category)} ════❍\n`;
       for (const command of categoryCommandsMap[category]) {
-        menuText += `┃✵│ ${fancytext(command, 1)}\n`;
+        menuText += `┃✵│ ${tiny(command, 1)}\n`;
       }
       menuText += `┃✵╰───────────────\n╰═════════════════⊷\n`;
     }
