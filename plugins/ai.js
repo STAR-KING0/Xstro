@@ -12,7 +12,7 @@ Index(
     try {
       query = query || message.reply_text;
       if (!query) {
-        return message.reply('*_Need Text_*');
+        return message.reply('*_'+prefix+'gpt4 What is Life?_*');
       }
       const response = await gpt4(query);
       if (response) {
