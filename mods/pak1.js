@@ -57,27 +57,25 @@ async function getallMenu(client, message) {
     });
 
     let menuText = `
-╭═════ ${config.ownername} ═════❍
-┃✵╭──────────────
-┃✵│ \`\`\`Owner\`\`\` ${config.ownername}
-┃✵│ \`\`\`Plugins\`\`\` ${commands.length}
-┃✵│ \`\`\`Alive\`\`\` ${runtime(process.uptime())}
-┃✵│ \`\`\`Ram\`\`\` ${formatp(os.totalmem() - os.freemem())}
-┃✵│ \`\`\`Time\`\`\` ${client.time}
-┃✵│ \`\`\`Date\`\`\` ${client.date}
-┃✵│ \`\`\`Version\`\`\` ${config.VERSION}
-│✵╰────────────┈⊷
-╰═════════════════❍\n`;
+╭════ xꜱᴛʀᴏ ᴍᴅ ʙᴏᴛ ════❍
+│ \`\`\`Owner\`\`\` ${config.ownername}
+│ \`\`\`Plugins\`\`\` ${commands.length}
+│ \`\`\`Alive\`\`\` ${runtime(process.uptime())}
+│ \`\`\`Ram\`\`\` ${formatp(os.totalmem() - os.freemem())}
+│ \`\`\`Time\`\`\` ${client.time}
+│ \`\`\`Date\`\`\` ${client.date}
+│ \`\`\`Version\`\`\` ${config.VERSION}
+╰════════════════❍\n`;
 
     // Append commands for each category
     for (const category in categoryCommandsMap) {
       menuText += `╭═════ ${tiny(category)} ════❍\n`;
       for (const command of categoryCommandsMap[category]) {
-        menuText += `┃✵│ ${tiny(command, 1)}\n`;
+        menuText += `│ ${tiny(command, 1)}\n`;
       }
-      menuText += `┃✵╰───────────────\n╰═════════════════⊷\n`;
+      menuText += `╰═════════════════⊷\n`;
     }
-    menuText += config.caption;
+    menuText += '\t xꜱᴛʀᴏ ᴍᴅ ʙᴏᴛ';
     let options = {
       caption: menuText.trim(), // Trim any extra whitespace at the beginning and end
     };
