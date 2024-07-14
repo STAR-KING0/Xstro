@@ -69,11 +69,11 @@ async function getallMenu(client, message) {
 
     // Append commands for each category
     for (const category in categoryCommandsMap) {
-      menuText += `╭═════ ${tiny(category)} ════⊷\n`;
+      menuText += `╭══ ${tiny(category)} ══⊷\n`;
       for (const command of categoryCommandsMap[category]) {
         menuText += `│ ${tiny(command, 1)}\n`;
       }
-      menuText += `╰═════════════════⊷\n`;
+      menuText += `╰════════════⊷\n`;
     }
     menuText += '\t xꜱᴛʀᴏ ᴍᴅ ʙᴏᴛ';
     let options = {
