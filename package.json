@@ -74,6 +74,7 @@
     "puppeteer": "^22.13.0",
     "qrcode": "^1.5.3",
     "secktor-pack": "^0.0.1-development",
+    "stream": "0.0.3",
     "simple-git": "^3.25.0",
     "translatte": "^3.0.1",
     "util": "^0.12.5",
