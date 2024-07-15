@@ -180,10 +180,82 @@ bot(
     }
   }
 );
+bot(
+  {
+    pattern: 'requests',
+    info: 'List all join requests',
+    type: 'group',
+  },
+  async (message, input) => {
+    try {
+      if (!message.isGroup) {
+        return message.reply(tlang().group);
+      }
+      if (!message.isBotAdmin || !message.isAdmin) {
+        return await message.reply(!message.isBotAdmin || 'ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ɪs ᴏɴʟʏ ғᴏʀ ɢʀᴏᴜᴘ ᴀᴅᴍɪɴ');
+      }
+
+      const requestList = await message.bot.groupRequestParticipantsList(message.chat);
+      if (!requestList || !requestList[0]) {
+        return await message.reply('*No join requests yet*');
+      }
+
+      let userRequests = [];
+      let replyMessage = '*List of users requesting to join*\n\n';
+      for (let i = 0; i < requestList.length; i++) {
+        replyMessage += `@${requestList[i].jid.split('@')[0]}\n`;
+        userRequests = [...userRequests, requestList[i].jid];
+      }
+      return await message.send(replyMessage, {
+        mentions: userRequests,
+      });
+    } catch (error) {
+      await message.error(`${error}\n\ncommand: joinrequests`, error);
+    }
+  }
+);
 
 bot(
   {
-    pattern: 'rejectjoin',
+    pattern: 'accept',
+    info: 'Accept all join requests!',
+    type: 'group',
+  },
+  async (message, input) => {
+    try {
+      if (!message.isGroup) {
+        return message.reply(tlang().group);
+      }
+      if (!message.isBotAdmin || !message.isAdmin) {
+        return await message.reply(!message.isBotAdmin || 'ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ɪs ᴏɴʟʏ ғᴏʀ ɢʀᴏᴜᴘ ᴀᴅᴍɪɴ');
+      }
+
+      const requestList = await message.bot.groupRequestParticipantsList(message.chat);
+      if (!requestList || !requestList[0]) {
+        return await message.reply('*No join requests yet*');
+      }
+
+      let acceptedUsers = [];
+      let replyMessage = '*List of accepted users*\n\n';
+      for (let i = 0; i < requestList.length; i++) {
+        try {
+          await message.bot.groupRequestParticipantsUpdate(message.from, [requestList[i].jid], 'approve');
+          replyMessage += `@${requestList[i].jid.split('@')[0]}\n`;
+          acceptedUsers = [...acceptedUsers, requestList[i].jid];
+        } catch {}
+      }
+      await message.send(replyMessage, {
+        mentions: acceptedUsers,
+      });
+    } catch (error) {
+      await message.error(`${error}\n\ncommand: acceptjoin`, error);
+    }
+  }
+); 
+
+bot(
+  {
+    pattern: 'reject',
     info: 'Reject all join requests!',
     type: 'group',
   },
@@ -219,78 +291,9 @@ bot(
   }
 );
 
-bot(
-  {
-    pattern: 'acceptjoin',
-    info: 'Accept all join requests!',
-    type: 'group',
-  },
-  async (message, input) => {
-    try {
-      if (!message.isGroup) {
-        return message.reply(tlang().group);
-      }
-      if (!message.isBotAdmin || !message.isAdmin) {
-        return await message.reply(!message.isBotAdmin || 'ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ɪs ᴏɴʟʏ ғᴏʀ ɢʀᴏᴜᴘ ᴀᴅᴍɪɴ');
-      }
 
-      const requestList = await message.bot.groupRequestParticipantsList(message.chat);
-      if (!requestList || !requestList[0]) {
-        return await message.reply('*No join requests yet*');
-      }
 
-      let acceptedUsers = [];
-      let replyMessage = '*List of accepted users*\n\n';
-      for (let i = 0; i < requestList.length; i++) {
-        try {
-          await message.bot.groupRequestParticipantsUpdate(message.from, [requestList[i].jid], 'approve');
-          replyMessage += `@${requestList[i].jid.split('@')[0]}\n`;
-          acceptedUsers = [...acceptedUsers, requestList[i].jid];
-        } catch {}
-      }
-      await message.send(replyMessage, {
-        mentions: acceptedUsers,
-      });
-    } catch (error) {
-      await message.error(`${error}\n\ncommand: acceptjoin`, error);
-    }
-  }
-);
 
-bot(
-  {
-    pattern: 'joinrequests',
-    info: 'List all join requests',
-    type: 'group',
-  },
-  async (message, input) => {
-    try {
-      if (!message.isGroup) {
-        return message.reply(tlang().group);
-      }
-      if (!message.isBotAdmin || !message.isAdmin) {
-        return await message.reply(!message.isBotAdmin || 'ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ɪs ᴏɴʟʏ ғᴏʀ ɢʀᴏᴜᴘ ᴀᴅᴍɪɴ');
-      }
-
-      const requestList = await message.bot.groupRequestParticipantsList(message.chat);
-      if (!requestList || !requestList[0]) {
-        return await message.reply('*No join requests yet*');
-      }
-
-      let userRequests = [];
-      let replyMessage = '*List of users requesting to join*\n\n';
-      for (let i = 0; i < requestList.length; i++) {
-        replyMessage += `@${requestList[i].jid.split('@')[0]}\n`;
-        userRequests = [...userRequests, requestList[i].jid];
-      }
-      return await message.send(replyMessage, {
-        mentions: userRequests,
-      });
-    } catch (error) {
-      await message.error(`${error}\n\ncommand: joinrequests`, error);
-    }
-  }
-);
 
 bot(
   {
