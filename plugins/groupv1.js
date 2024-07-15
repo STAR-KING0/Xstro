@@ -847,6 +847,45 @@ bot(
 
 bot(
   {
+    pattern: 'demote',
+    desc: 'Demotes replied/quoted user from group',
+    type: 'group',
+  },
+  async message => {
+    try {
+      if (!message.isGroup) {
+        return message.reply(tlang().group);
+      }
+      if (!message.isBotAdmin) {
+        return await message.reply("*_I'm Not Admin In This Group, Idiot_*");
+      }
+      if (!message.isAdmin) {
+        return message.reply(tlang().admin);
+      }
+
+      let userToDemote = message.mentionedJid[0] ? message.mentionedJid[0] : message.reply_message ? message.reply_message.sender : false;
+
+      if (!userToDemote) {
+        return await message.reply('*Reply/mention an User*');
+      }
+      if (message.checkBot(userToDemote)) {
+        return await message.reply("*_I can't Demote My Dev_*");
+      }
+
+      try {
+        await message.bot.groupParticipantsUpdate(message.chat, [userToDemote], 'demote');
+        await message.reply('*_User demoted_*');
+      } catch (error) {
+        await message.reply('*_Error_*');
+      }
+    } catch (error) {
+      await message.error(error + '\n\ncommand: demote', error);
+    }
+  }
+);
+
+bot(
+  {
     pattern: 'kick',
     desc: 'Kicks the replied/mentioned user from the group.',
     type: 'group',
@@ -1219,44 +1258,7 @@ bot(
   }
 );
 
-bot(
-  {
-    pattern: 'demote',
-    desc: 'Demotes replied/quoted user from group',
-    type: 'group',
-  },
-  async message => {
-    try {
-      if (!message.isGroup) {
-        return message.reply(tlang().group);
-      }
-      if (!message.isBotAdmin) {
-        return await message.reply("*_I'm Not Admin In This Group, Idiot_*");
-      }
-      if (!message.isAdmin) {
-        return message.reply(tlang().admin);
-      }
 
-      let userToDemote = message.mentionedJid[0] ? message.mentionedJid[0] : message.reply_message ? message.reply_message.sender : false;
-
-      if (!userToDemote) {
-        return await message.reply('*Reply/mention an User*');
-      }
-      if (message.checkBot(userToDemote)) {
-        return await message.reply("*_I can't Demote My Dev_*");
-      }
-
-      try {
-        await message.bot.groupParticipantsUpdate(message.chat, [userToDemote], 'demote');
-        await message.reply('*_User demoted_*');
-      } catch (error) {
-        await message.reply('*_Error_*');
-      }
-    } catch (error) {
-      await message.error(error + '\n\ncommand: demote', error);
-    }
-  }
-);
 
 bot(
   {
@@ -1293,7 +1295,7 @@ bot(
 
 bot(
   {
-    pattern: 'broadcast',
+    pattern: 'cast',
     desc: 'Bot makes a broadcast in all groups',
     fromMe: true,
     type: 'group',
