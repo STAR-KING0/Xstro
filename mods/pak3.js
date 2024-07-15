@@ -1,6 +1,6 @@
 const apiKey = 'a7P3X3Ix'; //Very Important 
 const axios = require('axios');
-const fs = require('fs');
+const fs = require('fs').promises; // Use fs.promises for promise-based operations
 const fsp = require('fs').promises;
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
@@ -154,6 +154,7 @@ async function twitter(url) {
     throw error;
   }
 }
+
 const tiktokApiUrl = 'https://api.fgmods.xyz/api/downloader/tiktok';
 
 async function downloadTiktokMedia(url, filePath) {
