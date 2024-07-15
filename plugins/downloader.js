@@ -84,8 +84,8 @@ bot(
   async (message, match) => {
     try {
       const url = match.trim();
-      if (!url || !url.includes('twitter.com/')) {
-        return await message.send('*_Please provide a valid Twitter video URL_*');
+      if (!url || !url.includes('https://')) {
+        return await message.send('*_Provide Twitter Video URL_*');
       }
       await message.reply('*_Downloading Twitter video..._*');
 
@@ -109,7 +109,7 @@ bot(
     try {
       const url = match.trim();
       if (!url || !url.includes('tiktok.com/')) {
-        return await message.send('*_Please provide a valid TikTok video URL_*');
+        return await message.send('*_Provide TikTok Video URL_*');
       }
       await message.reply('*_Downloading TikTok video..._*');
 
