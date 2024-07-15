@@ -12,7 +12,7 @@ bot(
     try {
       const url = match.trim();
       if (!url || !url.startsWith('https://www.instagram.com/')) {
-        return await message.send('*_Please provide a valid Instagram URL_*');
+        return await message.send('*_IG Reel or Video_*');
       }
       await message.reply('*_Downloading media..._*');
 
@@ -35,8 +35,8 @@ bot(
   async (message, match) => {
     try {
       const url = match.trim();
-      if (!url || !url.startsWith('https://www.instagram.com/stories/')) {
-        return await message.send('*_Please provide a valid Instagram story URL_*');
+      if (!url || !url.startsWith('https://')) {
+        return await message.send('*_IG Story Url_*');
       }
       await message.reply('*_Downloading story..._*');
 
