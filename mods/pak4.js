@@ -1,81 +1,54 @@
-const { Innertube, UniversalCache, Utils } = require('youtubei.js');
-const { existsSync, mkdirSync, createWriteStream } = require('fs');
-const { promisify } = require('util');
-const stream = require('stream');
-const pipeline = promisify(stream.pipeline);
+// yt.js
+const YouTube = require('youtubei.js');
+const ytdl = require('ytdl-core');
+const fs = require('fs').promises;
+const FileType = require('file-type');
+const path = require('path');
+const youtube = new YouTube.Client();
 
-const yt = {};
+async function ensureTempDir() {
+  const tempDir = path.join(__dirname, 'temp');
+  await fs.mkdir(tempDir, { recursive: true });
+  return tempDir;
+}
 
-yt.getInfo = async (videoId, options = {}) => {
-  try {
-    const innertubeInstance = await Innertube.create({
-      cache: new UniversalCache(false),
-      generate_session_locally: true,
-    });
+async function downloadMedia(url, type) {
+  const video = await youtube.getVideo(url);
+  const videoId = video.id;
+  const title = video.title.replace(/[^a-zA-Z0-9]/g, '_');
+  const fileType = type === 'audio' ? 'highestaudio' : 'highestvideo';
+  const fileName = `${title}.${type === 'audio' ? 'mp3' : 'mp4'}`;
+  const tempDir = await ensureTempDir();
+  const filePath = path.join(tempDir, fileName);
 
-    let videoInfo = await innertubeInstance.getInfo(videoId, options);
-    let qualityLabels = videoInfo.streaming_data.formats.map(format => format.quality_label);
+  const stream = ytdl(videoId, { quality: fileType });
+  const fileWriteStream = fs.createWriteStream(filePath);
 
-    let preferredQuality = qualityLabels.includes('360p') ? '360p' : 'best';
+  await new Promise((resolve, reject) => {
+    stream.pipe(fileWriteStream);
+    stream.on('end', resolve);
+    stream.on('error', reject);
+  });
 
-    let info = {
-      status: true,
-      title: videoInfo.basic_info.title,
-      id: videoInfo.basic_info.id,
-      quality: qualityLabels,
-      pref_Quality: preferredQuality,
-      duration: videoInfo.basic_info.duration,
-      description: videoInfo.basic_info.short_description,
-      keywords: videoInfo.basic_info.keywords,
-      thumbnail: videoInfo.basic_info.thumbnail[0].url,
-      author: videoInfo.basic_info.author,
-      views: videoInfo.basic_info.view_count,
-      likes: videoInfo.basic_info.like_count,
-      category: videoInfo.basic_info.category,
-      channel: videoInfo.basic_info.channel,
-      basic_info: videoInfo,
-    };
+  const fileTypeInfo = await FileType.fromFile(filePath);
 
-    return info;
-  } catch (error) {
-    console.error('Error fetching video info:', error);
-    return { status: false, error: error.message };
+  if (!fileTypeInfo) {
+    throw new Error('Unable to determine file type');
   }
-};
 
-yt.download = async (videoId, options = { type: 'video', quality: 'best', format: 'mp4' }) => {
-  try {
-    const innertubeInstance = await Innertube.create({
-      cache: new UniversalCache(false),
-      generate_session_locally: true,
-    });
+  const finalFileName = `${title}.${fileTypeInfo.ext}`;
+  const finalFilePath = path.join(tempDir, finalFileName);
+  await fs.rename(filePath, finalFilePath);
 
-    let downloadType = options.type || 'video';
-    let downloadQuality = downloadType === 'audio' ? 'best' : options.quality || 'best';
-    let downloadFormat = options.format || (downloadType === 'video' ? 'mp4' : 'm4a');
+  return finalFilePath;
+}
 
-    const downloadStream = await innertubeInstance.download(videoId, {
-      type: downloadType,
-      quality: downloadQuality,
-      format: downloadFormat,
-    });
+async function downloadVideo(url) {
+  return await downloadMedia(url, 'video');
+}
 
-    const tempDir = './temp';
-    if (!existsSync(tempDir)) {
-      mkdirSync(tempDir);
-    }
+async function downloadAudio(url) {
+  return await downloadMedia(url, 'audio');
+}
 
-    let fileExtension = downloadType === 'video' ? 'mp4' : 'm4a';
-    let filePath = `${tempDir}/YT_${videoId}_${Date.now()}.${fileExtension}`;
-    let fileStream = createWriteStream(filePath);
-
-    await pipeline(downloadStream, fileStream);
-
-    return filePath;
-  } catch (error) {
-    console.error('Error downloading video:', error);
-    return { status: false, error: error.message };
-  }
-};
-
-module.exports = yt;
+module.exports = { downloadVideo, downloadAudio };
