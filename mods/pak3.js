@@ -1,10 +1,12 @@
 const axios = require('axios');
-const fs = require('fs').promises;
+const fs = require('fs'); // Use fs directly for streaming
+const fsp = require('fs').promises; // Use fs.promises for promise-based operations
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const apiKey = 'a7P3X3Ix';
 
 const instaApiUrl = 'https://instadl.giftedtech.workers.dev/?url=';
+
 async function downloadMedia(url, filePath) {
   const response = await axios({
     url,
@@ -12,7 +14,7 @@ async function downloadMedia(url, filePath) {
     responseType: 'stream',
   });
 
-  const writer = fs.createWriteStream(filePath);
+  const writer = fs.createWriteStream(filePath); // Use fs directly for streaming
   response.data.pipe(writer);
 
   return new Promise((resolve, reject) => {
@@ -23,9 +25,10 @@ async function downloadMedia(url, filePath) {
 
 async function ensureTempDir() {
   const tempDir = path.join(__dirname, 'temp');
-  await fs.mkdir(tempDir, { recursive: true });
+  await fsp.mkdir(tempDir, { recursive: true });
   return tempDir;
 }
+
 //========[INSTAGRAM VIDEOS AND REELS]=========\\
 async function insta(url) {
   try {
@@ -52,6 +55,7 @@ async function insta(url) {
     throw error;
   }
 }
+
 //=========[INSTAGRAM STORIES | IMAGES]====\\
 async function instaStory(url) {
   try {
