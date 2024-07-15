@@ -1,26 +1,35 @@
 const axios = require('axios');
-const fs = require('fs'); // Use fs directly for streaming
-const fsp = require('fs').promises; // Use fs.promises for promise-based operations
+const fs = require('fs');
+const fsp = require('fs').promises;
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-const apiKey = 'a7P3X3Ix';
+const FileType = require('file-type');
+const stream = require('stream');
+const { promisify } = require('util');
+const pipeline = promisify(stream.pipeline);
 
 const instaApiUrl = 'https://instadl.giftedtech.workers.dev/?url=';
 
-async function downloadMedia(url, filePath) {
+async function downloadMedia(url) {
   const response = await axios({
     url,
     method: 'GET',
     responseType: 'stream',
   });
 
-  const writer = fs.createWriteStream(filePath); // Use fs directly for streaming
-  response.data.pipe(writer);
+  // Determine file type from stream
+  const fileTypeStream = await FileType.stream(response.data);
 
-  return new Promise((resolve, reject) => {
-    writer.on('finish', resolve);
-    writer.on('error', reject);
-  });
+  // Generate a unique file name based on the detected file type
+  const ext = fileTypeStream.fileType?.ext || 'bin';
+  const fileName = `${uuidv4()}.${ext}`;
+  const tempDir = await ensureTempDir();
+  const filePath = path.join(tempDir, fileName);
+
+  // Write the stream to a file
+  await pipeline(fileTypeStream, fs.createWriteStream(filePath));
+
+  return { filePath, mediaType: ext };
 }
 
 async function ensureTempDir() {
@@ -38,15 +47,10 @@ async function insta(url) {
     if (response.data.status && response.data.result.length > 0) {
       const media = response.data.result[0];
       const mediaUrl = media.url;
-      const thumbnailUrl = media.thumbnail;
-      const ext = path.extname(new URL(thumbnailUrl).pathname);
-      const fileName = `${uuidv4()}${ext || '.mp4'}`;
-      const tempDir = await ensureTempDir();
-      const filePath = path.join(tempDir, fileName);
 
-      await downloadMedia(mediaUrl, filePath);
+      const { filePath, mediaType } = await downloadMedia(mediaUrl);
 
-      return { filePath, mediaType: ext === '.mp4' ? 'video' : 'image' };
+      return { filePath, mediaType: mediaType === 'mp4' ? 'video' : 'image' };
     } else {
       throw new Error('No media found.');
     }
@@ -69,14 +73,9 @@ async function instaStory(url) {
     const media = result.data.result[0];
     const mediaUrl = media.url;
 
-    const tempDir = await ensureTempDir();
-    const mediaType = mediaUrl.includes('.mp4') ? 'video' : 'image';
-    const fileName = `media_${Date.now()}.${mediaType === 'video' ? 'mp4' : 'jpg'}`;
-    const filePath = path.join(tempDir, fileName);
+    const { filePath, mediaType } = await downloadMedia(mediaUrl);
 
-    await downloadMedia(mediaUrl, filePath);
-
-    return { filePath, mediaType };
+    return { filePath, mediaType: mediaType === 'mp4' ? 'video' : 'image' };
   } catch (error) {
     console.error('Error downloading Instagram story:', error.message);
     throw error;
