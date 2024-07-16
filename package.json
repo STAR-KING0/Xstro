@@ -1,6 +1,6 @@
 {
   "name": "xstro",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "An advanced WhatsApp bot with capabilities for sending, receiving, and automating messages, along with additional features.",
   "main": "index.js",
   "scripts": {
