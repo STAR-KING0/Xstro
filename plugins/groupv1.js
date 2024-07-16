@@ -2,8 +2,6 @@ global.warncount = process.env.WARN_COUNT || global.warncount || '3';
 global.MsgsInLog = process.env.MSGS_IN_LOG || global.MsgsInLog || 'true';
 const {} = require('../lib');
 const { sck, bot, send, Config, tlang, sleep, getAdmin, prefix, updateProfilePicture } = require('../lib');
-const astro_patch = require('../lib/plugins');
-const { cmd } = astro_patch;
 const grouppattern = /https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}/g;
 const { groupdb, userdb, bot_, sendWelcome } = require('../lib');
 const axios = require('axios');
@@ -757,7 +755,7 @@ bot(
         return ctx.reply('*_Cannot disable that cmd_*');
       }
 
-      const command = astro_patch.commands.find(cmd => cmd.pattern === action) || astro_patch.commands.find(cmd => cmd.alias && cmd.alias.includes(action));
+      const command = bot.commands.find(cmd => cmd.pattern === action) || bot.commands.find(cmd => cmd.alias && cmd.alias.includes(action));
       if (command) {
         let pattern = command.pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         let regex = new RegExp(`\\b${pattern}\\b`);
@@ -1618,7 +1616,7 @@ bot(
   }
 );
 
-cmd(
+bot(
   {
     pattern: 'common',
     desc: 'Get common participants in two groups, and kick using .common kick, jid',
@@ -1692,7 +1690,7 @@ cmd(
   }
 );
 
-cmd(
+bot(
   {
     pattern: 'diff',
     desc: 'Get difference of participants in two groups',
@@ -1734,7 +1732,7 @@ cmd(
   }
 );
 
-cmd(
+bot(
   {
     pattern: 'invite',
     desc: 'get group link.',
@@ -1756,7 +1754,7 @@ cmd(
     }
   }
 );
-cmd(
+bot(
   {
     pattern: 'revoke',
     desc: 'get group link.',
@@ -1777,7 +1775,7 @@ cmd(
     }
   }
 );
-cmd(
+bot(
   {
     pattern: 'tagall',
     desc: 'Tags every person of group.',
@@ -1814,7 +1812,7 @@ cmd(
   }
 );
 
-cmd(
+bot(
   {
     pattern: 'ckik',
     desc: 'Kick all numbers from a certain country',
@@ -1862,7 +1860,7 @@ cmd(
     }
   }
 );
-cmd(
+bot(
   {
     pattern: 'num',
     desc: 'get all numbers from a certain country',
@@ -1932,7 +1930,7 @@ bot(
   }
 );
 
-cmd(
+bot(
   {
     pattern: 'promote',
     desc: 'Provides admin role to replied/quoted user',
@@ -1962,7 +1960,7 @@ cmd(
     }
   }
 );
-cmd(
+bot(
   {
     pattern: 'kick',
     desc: 'Kicks replied/quoted user from group.',
@@ -2201,7 +2199,7 @@ bot(
   }
 );
 
-cmd(
+bot(
   {
     pattern: 'tagadmin',
     desc: 'Tags only admin numbers',
@@ -2227,7 +2225,7 @@ cmd(
   }
 );
 
-cmd(
+bot(
   {
     pattern: 'add',
     desc: 'Add that person to the group',
@@ -2272,7 +2270,7 @@ cmd(
   }
 );
 
-cmd(
+bot(
   {
     pattern: 'alljids',
     desc: 'Sends chat id of every group.',
@@ -2308,7 +2306,7 @@ cmd(
   }
 );
 
-cmd(
+bot(
   {
     pattern: 'demote',
     desc: 'Demotes replied/quoted user from group',
@@ -2375,7 +2373,7 @@ bot(
   }
 );
 
-cmd(
+bot(
   {
     pattern: 'castmsg',
     desc: 'Bot makes a broadcast in all groups',
