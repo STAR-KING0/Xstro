@@ -65,10 +65,10 @@ module.exports = {
   antilink_values: process.env.ANTILINK_VALUES || 'all',
   HEROKU: process.env.HEROKU_APP_NAME && process.env.HEROKU_API_KEY,
 
-  aitts_Voice_Id: process.env.AITTS_ID || '37',
+  aitts_Voice_Id: process.env.AITTS_ID || '30',
   ELEVENLAB_API_KEY: process.env.ELEVENLAB_API_KEY || '',
   WORKTYPE: process.env.WORKTYPE || process.env.MODE || 'private',
-  LANG: (process.env.THEME || 'SUHAIL').toUpperCase(),
+  LANG: (process.env.THEME || 'CONFIG').toUpperCase(),
 };
 
 global.rank = 'updated';

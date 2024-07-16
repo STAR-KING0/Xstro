@@ -1,0 +1,40 @@
+{
+  "__JSON__": true,
+  "AUTHOR": "Astro",
+  "LANGUAGE": "English",
+  "LANGCODE": "en",
+  "STRINGS": {
+    "global": {
+      "botName": "Xstro_MD",
+      "body": "whatsapp User Bot",
+      "greet2": "How is you Day?",
+      "pic1": "https://telegra.ph/file/ec9bc5038601821f2eb84.jpg",
+      "pic2": "https://telegra.ph/file/bc21f6f60bd1e3805f2a3.jpg",
+      "pic3": "https://telegra.ph/file/3d64d515e218df059601c.jpg",
+      "pic4": "https://telegra.ph/file/9f4baac07a47983bc68fc.jpg",
+      "pic5": "https://telegra.ph/file/931534bb2df6730c83e69.jpg",
+      "pic6": "https://telegra.ph/file/bc21f6f60bd1e3805f2a3.jpg",
+      "pic7": "https://telegra.ph/file/9f4baac07a47983bc68fc.jpg",
+      "greet": "GoodDay Sir",
+      "promote": "I Am Admin Now.",
+      "pmallow": "*_Blocked For Spamming Messages_*",
+      "pmwarn": "*_Don't Spam Else You Will Be Blocked In A Flash_*",
+      "permited": "*_Hello You Can DM Now_*",
+      "revoked": "*_Your DM permisson is Revoked_*",
+      "demote": "*_No Longer An Admin_*",
+      "antlink": "*_Link Found In Group_*",
+      "mention": "*_Tag My Owner_*",
+      "title": "*_Xstro_Md_*",
+      "footer": "*_Xstro_MD_V1_*",
+      "by": "*_Created By Astro_*",
+      "success": "Done ✓",
+      "admin": "ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ɪs ᴏɴʟʏ ғᴏʀ ɢʀᴏᴜᴘ ᴀᴅᴍɪɴ⚠️!",
+      "botAdmin": "ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴍᴇ ᴀᴅᴍɪɴ ʀᴏʟᴇ.❗",
+      "owner": "ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ɪs ᴏɴʟʏ ғᴏʀ ᴍʏ ᴏᴡɴᴇʀ⚠️",
+      "group": "ᴛʜɪs ғᴇᴀᴛᴜʀᴇ ɪs ᴏɴʟʏ ғᴏʀ ɢʀᴏᴜᴘ❗",
+      "private": "ᴛʜɪs ғᴇᴀᴛᴜʀᴇ ɪs ᴏɴʟʏ ғᴏʀ ᴍʏ ᴏᴡɴᴇʀ⚠️",
+      "bot": "ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ɪs ᴏɴʟʏ ғᴏʀ ᴍʏ ᴏᴡɴᴇʀ⚠️",
+      "wait": "ᴘʀᴏᴄᴇssɪɴɢ ʏᴏᴜʀ ʀᴇᴏ̨ᴜᴇsᴛ✅"
+    }
+  }
+}
