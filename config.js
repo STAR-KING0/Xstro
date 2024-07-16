@@ -21,12 +21,10 @@ global.gurl = process.env.GURL || 'https://whatsapp.com/channel/0029Va9thusJP20y
 global.website = process.env.GURL || 'https://whatsapp.com/channel/0029Va9thusJP20yWxQ6N643';
 global.THUMB_IMAGE = process.env.THUMB_IMAGE || 'https://telegra.ph/file/d5b1c3544fedc23e11a06.jpg';
 
-global.style = process.env.STYLE || '0';
 global.flush = process.env.FLUSH || 'false';
 global.gdbye = process.env.GOODBYE || 'false';
 global.wlcm = process.env.WELCOME || 'false';
 
-global.warncount = process.env.WARN_COUNT || 3;
 global.disablepm = process.env.DISABLE_PM || 'false';
 global.disablegroup = process.env.DISABLE_GROUPS || 'false';
 global.userImages = process.env.USER_IMAGES || '';
@@ -46,6 +44,7 @@ module.exports = {
   BRANCH: process.env.BRANCH || 'main',
   VERSION: process.env.VERSION || '1.0.0',
   caption: process.env.CAPTION || '©Xstro',
+  warncount: process.env.WARN_COUNT || '3',
 
   author: process.env.PACK_AUTHER || 'Xstro',
   packname: process.env.PACK_NAME || '♥️',

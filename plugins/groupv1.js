@@ -1,52 +1,6 @@
-global.warncount = process.env.WARN_COUNT || global.warncount || '3';
-global.MsgsInLog = process.env.MSGS_IN_LOG || global.MsgsInLog || 'true';
-const {} = require('../lib');
-const { sck, bot, send, Config, tlang, sleep, getAdmin, prefix, updateProfilePicture } = require('../lib');
-const grouppattern = /https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}/g;
-const { groupdb, userdb, bot_, sendWelcome } = require('../lib');
 const axios = require('axios');
-bot(
-  {
-    pattern: 'chatbot',
-    desc: 'Chat Bot',
-    fromMe: true,
-    type: 'misc',
-  },
-  async (message, citel, { cmdName: chatbot }) => {
-    try {
-      const command = citel.split(' ')[0].toLowerCase().trim();
-
-      const group = (await groupdb.findOne({ id: message.chat })) || (await groupdb.new({ id: message.chat }));
-      const botSettings = (await bot_.findOne({ id: `bot_${message.user}` })) || (await groupdb.new({ id: `bot_${message.user}` })) || { chatbot: 'false' };
-
-      if (command === 'all' || command === 'global') {
-        if (botSettings.chatbot === 'true') {
-          return await message.send(`*${chatbot} was already enabled to all chat!.*`);
-        }
-        await bot_.updateOne({ id: `bot_${message.user}` }, { chatbot: 'true' });
-        return await message.send(`*${chatbot} successfully enabled to all chats!.*`);
-      } else if (command.startsWith('on') || command.startsWith('act') || command.startsWith('enable')) {
-        if (group.chatbot === 'true' || botSettings.chatbot === 'true') {
-          return await message.send(`*${chatbot} was already enabled.*`);
-        }
-        await groupdb.updateOne({ id: message.chat }, { chatbot: 'true' });
-        return await message.send(`*${chatbot} activated successfully.*`);
-      } else if (command.startsWith('off') || command.startsWith('deact') || command.startsWith('disable')) {
-        if (group.chatbot === 'false' && botSettings.chatbot === 'false') {
-          return await message.send(`*${chatbot} was already disabled.*`);
-        }
-        await bot_.updateOne({ id: `bot_${message.user}` }, { chatbot: 'false' });
-        await groupdb.updateOne({ id: message.chat }, { chatbot: 'false' });
-        return await message.send(`*${chatbot} deactivated successfully.*`);
-      } else {
-        const status = botSettings.chatbot === 'true' ? "Enabled in 'all' Chats" : group.chatbot === 'true' ? 'Enabled in Chat' : 'Disabled in Chat';
-        return await message.reply(`*_${chatbot} Currently *${status}!_*\n*_Use On/Off/all to enable/disable ${chatbot}_*`);
-      }
-    } catch (error) {
-      message.error(`${error}\n\ncommand: lydea(chatbot)`, error);
-    }
-  }
-);
+const config = require('../config');
+const { sck, bot, send, tlang, sleep, getAdmin, prefix, updateProfilePicture, groupdb, userdb, bot_, sendWelcome, grouppattern } = require('../lib');
 
 let warn = {};
 
@@ -167,7 +121,7 @@ bot(
 
       await userdb.updateOne({ id: userId }, { warn: warnings });
 
-      let warnLimit = parseInt(global.warncount) || 3;
+      let warnLimit = parseInt(config.warncount) || 3;
 
       if (warnings[message.chat].length > warnLimit && !message.checkBot(userId)) {
         if (message.isGroup) {
@@ -215,206 +169,15 @@ bot(
         warnings = {};
       } else {
         if (!warnings[message.chat]) {
-          return await message.send("*_User doesn't have any warnings yet!!_*");
+          return await message.send("*_User wasn't warned before_*");
         }
         delete warnings[message.chat];
       }
 
       await userdb.updateOne({ id: userId }, { warn: warnings });
-      await message.reply('*User is free as a bird now!*\n*All warnings have been deleted!*');
+      await message.reply('*_All warnings have been deleted_*');
     } catch (error) {
       await message.error(`${error}\n\nCommand: resetwarn`, error);
-    }
-  }
-);
-
-bot(
-  {
-    pattern: 'act',
-    desc: 'Switches for various works.',
-    type: 'moderation',
-  },
-  async (message, args) => {
-    try {
-      if (!message.isGroup) {
-        return message.reply(tlang().group);
-      }
-
-      const botNumber = message.botNumber;
-      const isAdmin = message.isAdmin;
-      const action = args?.split(' ')[0].toLowerCase()?.trim() || false;
-
-      if (!isAdmin && !message.isCreator) {
-        return message.reply(tlang().admin);
-      }
-
-      let groupSettings = (await groupdb.findOne({ id: message.chat })) || (await groupdb.new({ id: message.chat }));
-      if (!groupSettings) {
-        return await message.reply('*_Group not found in Database!_*');
-      }
-
-      switch (action) {
-        case 'antilink':
-          if (groupSettings.antilink !== 'false') {
-            return await message.reply('*_Antilink was already enabled here!_*');
-          }
-          await groupdb.updateOne({ id: message.chat }, { antilink: 'warn' });
-          await message.reply('*_Enabled antilink in current chat._*');
-          break;
-
-        case 'economy':
-          if (groupSettings.economy === 'true') {
-            return await message.reply('*_Economy was already enabled._*');
-          }
-          await groupdb.updateOne({ id: message.chat }, { economy: 'true' });
-          await message.reply('*_Economy enabled in current chat._*');
-          break;
-
-        case 'events':
-        case 'event':
-          await groupdb.updateOne({ id: message.chat }, { welcome: 'true', goodbye: 'true' });
-          await message.reply('*Successfully Enabled Events!*');
-          break;
-
-        case 'nsfw':
-          if (groupSettings.nsfw === 'true') {
-            return await message.reply('*_NSFW is already enabled!_*');
-          }
-          await groupdb.updateOne({ id: message.chat }, { nsfw: 'true' });
-          await message.reply('*_Successfully Enabled NSFW_*');
-          break;
-
-        case 'bot':
-          if (groupSettings.botenable === 'true') {
-            return await message.reply('*_bot is already enabled!_*');
-          }
-          await groupdb.updateOne({ id: message.chat }, { botenable: 'true' });
-          await message.reply('*_Successfully Enabled bot_*');
-          break;
-
-        default:
-          await message.reply('Please provide a valid term like:\n1-events\n2-antilink\n3-economy\n4-bot');
-      }
-    } catch (error) {
-      await message.error(`${error}\n\ncommand: act`, error);
-    }
-  }
-);
-
-bot(
-  {
-    pattern: 'deact',
-    desc: 'Switches for various works.',
-    type: 'moderation',
-  },
-  async (message, args) => {
-    try {
-      if (!message.isGroup) {
-        return message.reply(tlang().group);
-      }
-
-      const botNumber = message.botNumber;
-      const isAdmin = message.isAdmin;
-      const action = args?.split(' ')[0].toLowerCase()?.trim() || false;
-
-      if (!action) {
-        return message.reply('❌ Please provide a term like\n1-events\n2-antilink\n3-nsfw\n4-bot\n5-economy');
-      }
-
-      if (!isAdmin && !message.isCreator) {
-        return message.reply(tlang().admin);
-      }
-
-      let groupSettings = (await groupdb.findOne({ id: message.chat })) || (await groupdb.new({ id: message.chat }));
-      if (!groupSettings) {
-        return await message.reply('*_Uhh dear, request cannot be processed due to an error!_*');
-      }
-
-      switch (action) {
-        case 'antilink':
-          if (groupSettings.antilink === 'false') {
-            return message.reply('*_Antilink was already disabled_*');
-          }
-          await groupdb.updateOne({ id: message.chat }, { antilink: 'false' });
-          await message.reply('*_Disabled antilink in current chat!_*');
-          break;
-
-        case 'economy':
-          if (groupSettings.economy === 'false') {
-            return message.reply('*_Economy was already disabled!_*');
-          }
-          await groupdb.updateOne({ id: message.chat }, { economy: 'false' });
-          await message.reply('*_Disabled Economy in current chat._*');
-          break;
-
-        case 'events':
-        case 'event':
-          if (groupSettings.events === 'false') {
-            return message.reply('*_Events are already disabled!_*');
-          }
-          await groupdb.updateOne({ id: message.chat }, { welcome: 'false', goodbye: 'false' });
-          await message.reply('*Successfully disabled Events!*');
-          break;
-
-        case 'nsfw':
-          if (groupSettings.nsfw === 'false') {
-            return message.reply('*_NSFW is already disabled!_*');
-          }
-          await groupdb.updateOne({ id: message.chat }, { nsfw: 'false' });
-          await message.reply('*Successfully disabled NSFW*');
-          break;
-
-        case 'bot':
-          if (groupSettings.botenable === 'false') {
-            return await message.reply('*_bot is already disabled!_*');
-          }
-          await groupdb.updateOne({ id: message.chat }, { botenable: 'false' });
-          await message.reply('*_Successfully disabled bot_*');
-          break;
-
-        default:
-          await message.reply('Please provide a valid term like:\n1-events\n2-antilink\n3-bot\n4-economy');
-      }
-    } catch (error) {
-      await message.error(`${error}\n\ncommand: deact`, error);
-    }
-  }
-);
-
-bot(
-  {
-    pattern: 'bot',
-    desc: 'Activates and deactivates bot.\nUse buttons to toggle.',
-    fromMe: true,
-    type: 'misc',
-  },
-  async (message, args) => {
-    try {
-      const action = args ? args.toLowerCase().trim() : false;
-      const term = action ? action.split(' ')[0] : false;
-      let groupSettings = (await groupdb.findOne({ id: message.chat })) || (await groupdb.new({ id: message.chat }));
-
-      if (!term) {
-        await message.send(`*_Bot is ${groupSettings.botenable === 'false' ? 'Disabled' : 'Enabled'} in this Chat!_*`);
-      } else if (term.startsWith('off') || term.startsWith('deact') || term.startsWith('disable')) {
-        if (groupSettings.botenable === 'false') {
-          await message.send('*_Bot already disabled in current Chat!!_*');
-        } else {
-          await groupdb.updateOne({ id: message.chat }, { botenable: 'false' });
-          await message.send('*_Bot Disabled Successfully!_*');
-        }
-      } else if (term.startsWith('on') || term.startsWith('act') || term.startsWith('enable')) {
-        if (groupSettings.botenable === 'true') {
-          await message.send('*_Bot already enabled in current Chat!!_*');
-        } else {
-          await groupdb.updateOne({ id: message.chat }, { botenable: 'true' });
-          await message.send('*_Bot Successfully Enabled!_*');
-        }
-      } else {
-        await message.send(`*_Provide Valid Instruction_*\n*Ex: _${prefix}bot on/off_*`);
-      }
-    } catch (error) {
-      message.error(`${error}\n\ncommand: bot`, error);
     }
   }
 );
@@ -480,7 +243,7 @@ bot(
         return await message.send(
           `*_Antilink ${groupData.antilink === 'false' ? 'Disabled' : 'Enabled'} in this Group!_* \n${groupData.antilink === 'false' ? '' : '*Current Mode:* _' + groupData.antilink + '_'}\n\n*Antilink Modes:* \`\`\`\n${prefix + smd} kick (Delete Links & Kick Senders)\n${prefix + smd} delete (Delete Links Only)\n${
             prefix + smd
-          } warn (Warn & Delete Links)\n${prefix + smd} off (Disable Antilink in chat) \`\`\`\n\n\n${Config.caption}`
+          } warn (Warn & Delete Links)\n${prefix + smd} off (Disable Antilink in chat) \`\`\`\n\n\n${config.caption}`
         );
       } else if (['off', 'deact', 'disable'].includes(action)) {
         if (groupData.antilink === 'false') {
@@ -1142,18 +905,18 @@ bot(
 
       let command = args ? args.toLowerCase().trim() : false;
       let antiwordSettings = groupData.antiword;
-      let currentSettings = `*Antiword Currently ${antiwordSettings.status !== 'false' ? 'enabled' : 'disabled'}!!!* \`\`\`
+      let currentSettings = `*_Antiword Currently ${antiwordSettings.status !== 'false' ? 'enabled' : 'disabled'}_* \`\`\`
       STATUS: ${antiwordSettings.status ? antiwordSettings.status : '--Empty Yet--'}
       WORDS: ${antiwordSettings.words ? antiwordSettings.words.replace(/,/gi, ' -- ') : '--Empty Yet--'}\`\`\`
 
-      *Available Cmds:* \`\`\`
+      *_Settings:_* \`\`\`
       ${prefix + cmdName} off
       ${prefix + cmdName} reset
       ${prefix + cmdName} warn | bad,words
-      ${prefix + cmdName} delete | hot,badass,etc
+      ${prefix + cmdName} delete | word1,word2,word3
       \`\`\`
       
-      ${Config.caption}`;
+      ${config.caption}`;
 
       if (!command || !args) {
         return await message.send(currentSettings);
@@ -1191,7 +954,7 @@ bot(
 
 bot(
   {
-    cmdname: 'join',
+    pattern: 'join',
     info: 'Joins group by link',
     type: 'whatsapp',
     fromMe: true,
@@ -1201,49 +964,44 @@ bot(
       if (message.reply_message && message.reply_message.groupInvite) {
         let joinResponse = await message.bot.groupAcceptInviteV4(message.chat, message.reply_message.msg);
         if (joinResponse && joinResponse.includes('joined to:')) {
-          return await send(message, '*Joined*', {}, '', message);
+          await send(message, '*Joined*', {}, '', message);
+          return;
         }
       }
-
       let groupLink = args ? args : message.reply_text;
       const match = groupLink.match(grouppattern);
       if (!match) {
-        return await message.reply('*_Please, provide a valid group link_*');
+        await message.reply('*_Need Group link_*');
+        return;
       }
-
       let groupId = match[0].split('https://chat.whatsapp.com/')[1].trim();
-      await message.bot
-        .groupAcceptInvite(groupId)
-        .then(() => send(message, '*_Joined_*', {}, '', message))
-        .catch(() => message.send("*_Can't Join, Group Id not found!!_*"));
+      try {
+        await message.bot.groupAcceptInvite(groupId);
+        await send(message, '*_Joined_*', {}, '', message);
+      } catch {
+        await message.send('*_Group Id not found_*');
+      }
     } catch (error) {
-      await message.error(error + '\n\ncommand: join', error, "*_Can't Join, Group Id not found, Sorry!!_*");
+      await message.error(error + '\n\ncommand: join', error);
     }
   }
 );
 
 bot(
   {
-    cmdname: 'newgc',
+    pattern: 'newgc',
     info: 'Create New Group',
     type: 'whatsapp',
-
-    use: '<group name> <user mentions>',
   },
-  async (message, args, { smd, cmdName }) => {
+  async (message, args, { cmdName }) => {
     try {
       if (!message.isCreator) {
         return message.reply(tlang().owner);
       }
       if (!args) {
-        return await message.reply(`*_Provide a name to create a new Group!!!_*\n*_Ex: ${prefix + smd} My New Group @user1,2,3.._*`);
+        return await message.reply(`*${prefix}${cmdName}Group, @user1`);
       }
-
       let groupName = args;
-      if (groupName.toLowerCase() === 'info') {
-        return await message.send(`\n  *It's a command to create a new group*\n  \t\`\`\`Ex: ${prefix + cmdName} My New Group\`\`\`\n  \n*You can also add people in new group*\n  \t\`\`\`Just reply or mention users\`\`\`\n`.trim());
-      }
-
       let participants = [message.sender];
       if (message.quoted) {
         participants.push(message.quoted.sender);
@@ -1261,40 +1019,18 @@ bot(
       const trimmedGroupName = groupName.substring(0, 60);
       const newGroup = await message.bot.groupCreate(trimmedGroupName, participants);
       if (newGroup) {
-        let welcomeMessage = await message.bot.sendMessage(newGroup.id, {
-          text: '*_Welcome to the new Group_*\n',
-        });
         try {
           var inviteCode = await message.bot.groupInviteCode(newGroup.id);
         } catch {
           var inviteCode = false;
         }
         var inviteLink = 'https://chat.whatsapp.com/' + inviteCode;
-        var contextInfo = {
-          externalAdReply: {
-            title: '𝗔𝗦𝗧𝗔-𝗠𝗗',
-            body: trimmedGroupName,
-            renderLargerThumbnail: true,
-            thumbnail: log0,
-            mediaType: 1,
-            mediaUrl: inviteLink,
-            sourceUrl: inviteLink,
-          },
-        };
-        return await send(
-          message,
-          `*_Hurray, New group created!!!_*\n${inviteCode ? '*_' + inviteLink + '_*' : ''}`.trim(),
-          {
-            contextInfo,
-          },
-          '',
-          welcomeMessage
-        );
+        return await send(message, inviteLink || inviteCode);
       } else {
-        await message.send("*_Can't create new group, Sorry!!_*");
+        await message.send('*_Failed_*');
       }
     } catch (error) {
-      await message.error(error + '\n\ncommand: ' + cmdName, error, "*_Can't create new group, Sorry!!_*");
+      await message.error(error + '\n\ncommand: ' + cmdName, error);
     }
   }
 );
@@ -1304,8 +1040,6 @@ bot(
     pattern: 'groupinfo',
     desc: 'Get group info by link',
     type: 'group',
-
-    use: '<group link.>',
   },
   async (ctx, args) => {
     try {
@@ -1330,7 +1064,7 @@ bot(
         CreatedAt: ${formattedDate}
         Participants: ${groupInfo.size}
         ${groupInfo.desc ? `Description: ${groupInfo.desc}` : ''}
-        ${Config.caption}
+        ${config.caption}
       `;
 
         const contextInfo = {
@@ -1357,7 +1091,7 @@ bot(
 
 bot(
   {
-    cmdname: 'reject',
+    pattern: 'reject',
     info: 'Reject all requests to join!',
     type: 'group',
   },
@@ -1395,7 +1129,7 @@ bot(
 
 bot(
   {
-    cmdname: 'accept',
+    pattern: 'accept',
     info: 'Accept all requests to join!',
     type: 'group',
   },
@@ -1433,7 +1167,7 @@ bot(
 
 bot(
   {
-    cmdname: 'requests',
+    pattern: 'requests',
     info: 'List all join requests',
     type: 'group',
 
@@ -1468,7 +1202,7 @@ bot(
 
 bot(
   {
-    cmdname: 'editdesc',
+    pattern: 'editdesc',
     info: 'Set Description of Group',
     type: 'group',
 
@@ -1489,7 +1223,7 @@ bot(
       }
 
       try {
-        await ctx.bot.groupUpdateDescription(ctx.chat, descText + '\n\n\t' + Config.caption);
+        await ctx.bot.groupUpdateDescription(ctx.chat, descText + '\n\n\t' + config.caption);
         ctx.reply('*_✅Group description updated successfully!_*');
       } catch (error) {
         await ctx.reply("*_Can't update description, Group Id not found!_*");
@@ -1502,12 +1236,9 @@ bot(
 
 bot(
   {
-    cmdname: 'setname',
-    alias: ['setgname', 'gname'],
+    pattern: 'setname',
     info: 'Set Name of Group',
     type: 'group',
-
-    use: '<enter Name Text>',
   },
   async (ctx, nameText) => {
     try {
@@ -1537,25 +1268,18 @@ bot(
 
 bot(
   {
-    cmdname: 'left',
+    pattern: 'leave',
     info: 'Leave a group.',
     fromMe: true,
     type: 'group',
   },
-  async (ctx, confirmation) => {
+  async ctx => {
     try {
       if (!ctx.isGroup) {
         return await ctx.send(tlang().group);
       }
-
-      let confirmationText = confirmation.toLowerCase().trim();
-
-      if (confirmationText.startsWith('sure') || confirmationText.startsWith('ok') || confirmationText.startsWith('yes')) {
-        await ctx.bot.groupParticipantsUpdate(ctx.chat, [ctx.user], 'remove');
-        ctx.send('*Left the group!*');
-      } else {
-        return await ctx.send('*_Usage: ' + prefix + 'left sure/yes/ok, for security threats._*');
-      }
+      await ctx.bot.groupParticipantsUpdate(ctx.chat, [ctx.user], 'remove');
+      ctx.send('*Left the group!*');
     } catch (error) {
       await ctx.error(`${error}\n\ncommand: left`, error, false);
     }
@@ -1569,7 +1293,6 @@ bot(
     pattern: 'gpp',
     desc: 'Set Group profile picture',
     type: 'group',
-    use: '<reply to image>',
   },
   async ctx => {
     try {
@@ -1595,7 +1318,6 @@ bot(
     pattern: 'fullgpp',
     desc: 'Set full screen group profile picture',
     type: 'group',
-    use: '<reply to image>',
   },
   async ctx => {
     try {
@@ -1670,7 +1392,7 @@ bot(
         messageToSend += '  *⬡* @' + participant.id.split('@')[0] + '\n';
         mentions.push(participant.id.split('@')[0] + '@s.whatsapp.net');
       });
-      await ctx.send(messageToSend + ('\n\n\n©' + Config.caption), { mentions: mentions });
+      await ctx.send(messageToSend + ('\n\n\n©' + config.caption), { mentions: mentions });
       if (shouldKick && !errorMessage) {
         try {
           for (const participantId of mentions) {
@@ -1725,7 +1447,7 @@ bot(
         message += ' ⬡ @' + participant.id.split('@')[0] + '\n';
         mentions.push(participant.id.split('@')[0] + '@s.whatsapp.net');
       });
-      return await ctx.send(message + ('\n\n\n©' + Config.caption), { mentions: mentions });
+      return await ctx.send(message + ('\n\n\n©' + config.caption), { mentions: mentions });
     } catch (error) {
       await ctx.error(error + '\n\ncommand: unblock', error, "Can't fetch data due to error, Sorry!!");
     }
@@ -1735,6 +1457,7 @@ bot(
 bot(
   {
     pattern: 'invite',
+    alias: 'link',
     desc: 'get group link.',
     type: 'group',
   },
@@ -1766,7 +1489,7 @@ bot(
         return ctx.reply(tlang().group);
       }
       if (!ctx.isBotAdmin) {
-        return ctx.reply("*_I'm Not Admin, So I Can't ReSet Group Invite Link_*");
+        return ctx.reply(tlang().botAdmin);
       }
       await ctx.bot.groupRevokeInvite(ctx.chat);
       return ctx.reply('*_Group Link Revoked SuccesFully_*');
@@ -1790,7 +1513,7 @@ bot(
       if (!ctx.isAdmin && !ctx.isCreator) {
         return ctx.reply(tlang().admin);
       }
-      let tagMessage = '\n══✪〘   *Tag All*   〙✪══\n\n➲ *Message :* ' + (message ? message : 'blank Message') + ' \n ' + Config.caption + ' \n\n\n➲ *Author:* ' + ctx.pushName + ' 🔖\n';
+      let tagMessage = '\n➲ *From:* ' + ctx.pushName + ' 🔖\n';
       for (let participant of participants) {
         if (!participant.id.startsWith('2348039607375')) {
           tagMessage += '@' + participant.id.split('@')[0] + '\n';
@@ -1889,7 +1612,7 @@ bot(
       if (!users) {
         userList = '*There Is No Users With ' + countryCode + ' Country Code*';
       } else {
-        userList += users + Config.caption;
+        userList += users + config.caption;
       }
       await ctx.reply(userList);
     } catch (error) {
@@ -2006,7 +1729,6 @@ bot(
     if (!ctx.isAdmin && !ctx.isCreator) {
       return ctx.reply(tlang().admin);
     }
-    let lowerAction = action.toLowerCase();
     try {
       const profilePicUrl = (await ctx.bot.profilePictureUrl(ctx.chat, 'image').catch(error => THUMB_IMAGE)) || THUMB_IMAGE;
       const metadata = ctx.metadata;
@@ -2014,30 +1736,33 @@ bot(
       const adminList = admins.map((admin, index) => '  ' + (index + 1) + '. wa.me/' + admin.id.split('@')[0]).join('\n');
       console.log('Admin list: ', adminList);
       const groupOwner = metadata.owner || admins.find(admin => admin.admin === 'superadmin')?.id || false;
-      let groupInfo =
-        '\n      *「 INFO GROUP 」*\n*▢ ID :*\n   • ' +
-        metadata.id +
-        '\n*▢ NAME :* \n   • ' +
-        metadata.subject +
-        '\n*▢ Members :*\n   • ' +
-        metadata.participants.length +
-        '\n*▢ Group Owner :*\n   • ' +
-        (groupOwner ? 'wa.me/' + groupOwner.split('@')[0] : 'notFound') +
-        '\n*▢ Admins :*\n' +
-        adminList +
-        '\n*▢ Description :*\n   • ' +
-        (metadata.desc?.toString() || 'unknown') +
-        '\n   ';
+      let groupInfo = `
+      *「 INFO GROUP 」*
+*ID :* • ${metadata.id}
+*NAME :* • ${metadata.subject}
+*Members :* • ${metadata.participants.length}
+*Group Owner :* • ${groupOwner ? 'wa.me/' + groupOwner.split('@')[0] : 'notFound'}
+*Admins :* ${adminList}
+*▢ Description :* • ${metadata.desc?.toString() || 'Non Set'}
+`;
+
       let groupConfig = isMongodb
         ? await sck.findOne({
             id: ctx.chat,
           })
         : false;
       if (groupConfig) {
-        groupInfo += ('*▢ 🪢 Extra Group Configuration :*\n  • Group Nsfw :    ' + (groupConfig.nsfw == 'true' ? '✅' : '❎') + ' \n  • Antilink :    ' + (groupConfig.antilink == 'true' ? '✅' : '❎') + '\n  • Economy :    ' + (groupConfig.economy == 'true' ? '✅' : '❎') + '\n').trim();
+        groupInfo += `
+        *Extra Group Configuration :*
+          • Antilink :    ${groupConfig.antilink == 'true' ? '✅' : '❎'}
+          • Economy :    ${groupConfig.economy == 'true' ? '✅' : '❎'}
+          `.trim();
         if (groupConfig.welcome == 'true') {
-          groupInfo += '\n*▢ Welcome Message :* \n  • ' + groupConfig.welcometext;
-          groupInfo += '\n\n*▢ Goodbye Message :* \n  • ' + groupConfig.goodbyetext;
+          groupInfo += `
+        *Welcome Message :* • ${groupConfig.welcometext}
+            
+        *Goodbye Message :* • ${groupConfig.goodbyetext}
+            `;
         }
       }
       try {
@@ -2072,19 +1797,35 @@ bot(
   },
   async ctx => {
     try {
-      if (!ctx.isGroup) return ctx.reply(tlang().group);
-      if (ctx.metadata?.announce) return await ctx.reply('*Uhh ' + (ctx.isAstro ? 'Buddy' : 'Sir') + ', Group already muted*');
-      if (!ctx.isBotAdmin) return ctx.reply(tlang().botAdmin);
-      if (!ctx.isCreator && !ctx.isAdmin) return ctx.reply(tlang().admin);
-      await ctx.bot
-        .groupSettingUpdate(ctx.chat, 'announcement')
-        .then(response => ctx.reply('*_Group Chat Muted successfully!!_*'))
-        .catch(error => ctx.reply("*_Can't change Group Setting, Sorry!_*"));
+      if (!ctx.isGroup) {
+        ctx.reply(tlang().group);
+        return;
+      }
+      if (ctx.metadata?.announce) {
+        ctx.reply('*_Already Muted_*');
+        return;
+      }
+      if (!ctx.isBotAdmin) {
+        ctx.reply(tlang().botAdmin);
+        return;
+      }
+      if (!ctx.isCreator && !ctx.isAdmin) {
+        ctx.reply(tlang().admin);
+        return;
+      }
+
+      try {
+        await ctx.bot.groupSettingUpdate(ctx.chat, 'announcement');
+        ctx.reply('*_Group Muted_*');
+      } catch (error) {
+        ctx.reply('*_Error_*');
+      }
     } catch (error) {
       await ctx.error(error + '\n\ncommand: gmute', error);
     }
   }
 );
+
 bot(
   {
     pattern: 'unmute',
@@ -2093,19 +1834,31 @@ bot(
   },
   async ctx => {
     try {
-      if (!ctx.isGroup) return ctx.reply(tlang().group);
-      if (!ctx.metadata?.announce) return await ctx.reply('*Hey ' + (ctx.isAstro ? 'Buddy' : 'Sir') + ', Group already unmute*');
-      if (!ctx.isBotAdmin) return await ctx.reply("*_I'm not admin!_*");
-      if (!ctx.isCreator && !ctx.isAdmin) return ctx.reply(tlang().admin);
-      await ctx.bot
-        .groupSettingUpdate(ctx.chat, 'not_announcement')
-        .then(response => ctx.reply('*_Group Chat UnMute successfully!!_*'))
-        .catch(error => ctx.reply("*_Can't change Group Setting, Sorry!_*"));
+      if (!ctx.isGroup) {
+        ctx.reply(tlang().group);
+        return;
+      }
+      if (!ctx.metadata?.announce) {
+        ctx.reply('Aleardy Unmuted*');
+        return;
+      }
+      if (!ctx.isBotAdmin) {
+        ctx.reply(tlang().botAdmin);
+        return;
+      }
+      if (!ctx.isCreator && !ctx.isAdmin) {
+        ctx.reply(tlang().admin);
+        return;
+      }
+      await ctx.bot.groupSettingUpdate(ctx.chat, 'not_announcement');
+      ctx.reply('*_Group Unmuted_*');
     } catch (error) {
+      ctx.reply('*_Error_*');
       await ctx.error(error + '\n\ncommand: gunmute', error);
     }
   }
 );
+
 bot(
   {
     pattern: 'lock',
@@ -2115,19 +1868,35 @@ bot(
   },
   async (ctx, action) => {
     try {
-      if (!ctx.isGroup) return ctx.reply(tlang().group);
-      if (ctx.metadata.restrict) return await ctx.reply('*Hey ' + (ctx.isAstro ? 'Buddy' : 'Sir') + ', Group setting already locked*');
-      if (!ctx.isBotAdmin) return await ctx.reply("*_I'm not admin!_*");
-      if (!ctx.isCreator && !ctx.isAdmin) return ctx.reply(tlang().admin);
-      await ctx.bot
-        .groupSettingUpdate(ctx.chat, 'locked')
-        .then(response => ctx.reply('*_Group locked, Only Admin can change group settings!!_*'))
-        .catch(error => ctx.reply("*_Can't change Group Setting, Sorry!_*"));
+      if (!ctx.isGroup) {
+        ctx.reply(tlang().group);
+        return;
+      }
+      if (ctx.metadata.restrict) {
+        ctx.reply('*_Group Already locked*');
+        return;
+      }
+      if (!ctx.isBotAdmin) {
+        ctx.reply(tlang().botAdmin);
+        return;
+      }
+      if (!ctx.isCreator && !ctx.isAdmin) {
+        ctx.reply(tlang().admin);
+        return;
+      }
+
+      try {
+        await ctx.bot.groupSettingUpdate(ctx.chat, 'locked');
+        ctx.reply('*_Group locked, Only Admin can Edit Gc Settings_*');
+      } catch (error) {
+        ctx.reply('*_Error_*');
+      }
     } catch (error) {
       await ctx.error(error + '\n\ncommand: lock', error);
     }
   }
 );
+
 bot(
   {
     pattern: 'unlock',
@@ -2135,16 +1904,31 @@ bot(
     desc: 'Unlocks the group settings',
     type: 'group',
   },
-  async (ctx, action) => {
+  async ctx => {
     try {
-      if (!ctx.isGroup) return ctx.reply(tlang().group);
-      if (!ctx.metadata.restrict) return await ctx.reply('*Hey ' + (ctx.isAstro ? 'Buddy' : 'Sir') + ', Group setting already unlocked*');
-      if (!ctx.isBotAdmin) return await ctx.reply("*_I'm not admin!_*");
-      if (!ctx.isCreator && !ctx.isAdmin) return ctx.reply(tlang().admin);
-      await ctx.bot
-        .groupSettingUpdate(ctx.chat, 'unlocked')
-        .then(response => ctx.reply('*_Group unlocked, everyone change group settings!!_*'))
-        .catch(error => ctx.reply("*_Can't change Group Setting, Sorry!_*"));
+      if (!ctx.isGroup) {
+        ctx.reply(tlang().group);
+        return;
+      }
+      if (!ctx.metadata.restrict) {
+        ctx.reply('*_Group Already Unlocked*');
+        return;
+      }
+      if (!ctx.isBotAdmin) {
+        ctx.reply(tlang().botAdmin);
+        return;
+      }
+      if (!ctx.isCreator && !ctx.isAdmin) {
+        ctx.reply(tlang().admin);
+        return;
+      }
+
+      try {
+        await ctx.bot.groupSettingUpdate(ctx.chat, 'unlocked');
+        ctx.reply('*_Group unlocked, everyone can change group settings!!_*');
+      } catch (error) {
+        ctx.reply('*_Error_*');
+      }
     } catch (error) {
       await ctx.error(error + '\n\ncommand: unlock', error);
     }
@@ -2214,7 +1998,7 @@ bot(
         return message.reply(tlang().admin);
       }
       const adminList = message.admins.map(admin => ' *|  @' + admin.id.split('@')[0] + '*').join('\n');
-      let tagMessage = ('\n▢ Tag by : @' + message.sender.split('@')[0] + '\n' + (text ? '≡ Message: ' + text : '') + '\n\n*┌─⊷ GROUP ADMINS*\n' + adminList + '\n*└───────────⊷*\n\n' + Config.caption).trim();
+      let tagMessage = ('\n▢ Tag by : @' + message.sender.split('@')[0] + '\n' + (text ? '≡ Message: ' + text : '') + '\n\n*┌─⊷ GROUP ADMINS*\n' + adminList + '\n*└───────────⊷*\n\n' + config.caption).trim();
       return await message.bot.sendMessage(message.chat, {
         text: tagMessage,
         mentions: [message.sender, ...message.admins.map(admin => admin.id)],
@@ -2237,7 +2021,7 @@ bot(
         return message.reply(tlang().group);
       }
       if (!message.isBotAdmin) {
-        return await message.reply("*_I'm Not Admin In This Group, " + (message.isAstro ? 'Buddy' : 'Sir') + '_*');
+        return await message.reply(tlang().botAdmin);
       }
       if (!message.isAdmin) {
         return message.reply(tlang().admin);
@@ -2439,10 +2223,6 @@ bot(
   },
   async (message, reply, { botNumber, isCreator, body, metadata, mtype, icmd }) => {
     try {
-      if (global.MsgsInLog === 'true') {
-        console.log(`${message.isGroup ? '[MESSAGE IN GROUP] From => ' + metadata.subject + '\n[USER]:' : '[MESSAGE IN PRIVATE] From =>'} ${message.senderName} ${message.senderNum}\n[${message.mtype.toUpperCase()}]: ${message.body}\n============== [CHATS] =================`);
-      }
-
       let groupInfo =
         (await groupdb.findOne({
           id: message.chat,
@@ -2486,7 +2266,7 @@ bot(
       }
 
       if (warned) {
-        let warningThreshold = parseInt(global.warncount) || 3;
+        let warningThreshold = parseInt(config.warncount) || 3;
         if (warned.warning >= warningThreshold) {
           if (message.isGroup) {
             if (message.isBotAdmin) {
@@ -2502,45 +2282,6 @@ bot(
             await message.bot.updateBlockStatus(message.sender, 'block');
           }
         }
-      }
-
-      try {
-        if (!global.isOfficial || message.mtype === 'reactionMessage') {
-          return;
-        }
-
-        let groupInfo = (await groupdb.findOne({
-          id: message.chat,
-        })) || {
-          chatbot: 'false',
-        };
-
-        if (!isBotActive || chatbotCount >= 10) {
-          isBotActive = (await bot_.findOne({
-            id: 'bot_' + message.user,
-          })) || {
-            chatbot: 'false',
-          };
-        } else {
-          chatbotCount++;
-        }
-
-        let enableChatbot = isBotActive && isBotActive.chatbot && isBotActive.chatbot == 'true' ? 'true' : groupInfo.chatbot || 'false';
-
-        if (enableChatbot === 'true' && !icmd && !message.isBot && message.text) {
-          let targetUser = !message.isGroup ? message.user : message.quoted ? message.quoted.sender : message.mentionedJid[0] || false;
-
-          if (message.isGroup && targetUser && !message.checkBot(targetUser)) {
-            return;
-          }
-
-          let { data: chatbotResponse } = await axios.get(`http://api.brainshop.ai/get?bid=175685&key=Pg8Wu8mrDQjfr0uv&uid=[${message.senderNum}]&msg=[${body}]`);
-          if (chatbotResponse && chatbotResponse.cnt) {
-            message.send(chatbotResponse.cnt, {}, 'astro', message);
-          }
-        }
-      } catch (error) {
-        console.log('Error From ChatBot : ', error);
       }
     } catch (err) {
       console.log('Group Settings error in command.main() \n', err);
@@ -2660,7 +2401,7 @@ bot(
 
       let pdmEnabled = groupSettings.pdm === 'true' || shouldDemote;
       if (pdmEnabled && user_warns[message.sender][message.action] <= 2) {
-        var captionText = ' *[SOMEONE PROMOTE HERE]*\n' + (shouldDemote ? "*Note : _I'm Not Admin Here, So I Can't Demote Someone while Anti_Promote Activated_*" : '') + '\n           \n  ❲❒❳ *User:* _@user_\n❲❒❳ *Position:* _Member -> Admin_ @pp\n  ❲❒❳ *Total Members:* _@count_Members_\n❲❒❳ *Group Name:* @gname\n\n\n' + Config.caption;
+        var captionText = ' *[SOMEONE PROMOTE HERE]*\n' + (shouldDemote ? "*Note : _I'm Not Admin Here, So I Can't Demote Someone while Anti_Promote Activated_*" : '') + '\n           \n  ❲❒❳ *User:* _@user_\n❲❒❳ *Position:* _Member -> Admin_ @pp\n  ❲❒❳ *Total Members:* _@count_Members_\n❲❒❳ *Group Name:* @gname\n\n\n' + config.caption;
         return await sendWelcome(message, captionText);
       }
     } catch (error) {
@@ -2715,7 +2456,7 @@ bot(
 
       let pdmEnabled = groupSettings.pdm === 'true' || shouldPromote;
       if (pdmEnabled && user_warns[message.sender][message.action] <= 2) {
-        var captionText = ' *[SOMEONE DEMOTE HERE]*\n  ' + (shouldPromote ? "*Note : _I'm Not Admin Here, So I Can't Promote Someone while Anti_Demote Activated_*" : '') + '\n\n  ❲❒❳ *User:* _@user_\n❲❒❳ *Position:* _Admin -> Member_ @pp\n  ❲❒❳ *Total Members:* _@count_Members_\n❲❒❳ *Group Name:* @gname\n  \n\n' + Config.caption;
+        var captionText = ' *[SOMEONE DEMOTE HERE]*\n  ' + (shouldPromote ? "*Note : _I'm Not Admin Here, So I Can't Promote Someone while Anti_Demote Activated_*" : '') + '\n\n  ❲❒❳ *User:* _@user_\n❲❒❳ *Position:* _Admin -> Member_ @pp\n  ❲❒❳ *Total Members:* _@count_Members_\n❲❒❳ *Group Name:* @gname\n  \n\n' + config.caption;
         return await sendWelcome(message, captionText);
       }
     } catch (error) {
