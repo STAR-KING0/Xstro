@@ -12,7 +12,7 @@ function extractVideoId(url) {
 bot(
   {
     pattern: 'ytv',
-    desc: 'Downloads YouTube videos with audio.',
+    desc: 'Downloads YouTube videos.',
     type: 'youtube',
   },
   async (message, match) => {
@@ -34,23 +34,17 @@ bot(
       }
 
       await message.reply(`*Downloading: ${info.title}*`);
-
-      // Ensure we get a format with both video and audio
-      const filePath = await ytModule.download(videoId, {
-        type: 'video',
-        quality: 'best',
-        format: 'mp4',
-      });
+      const filePath = await ytModule.download(videoId, { type: 'video', quality: '360p' });
 
       if (!filePath) {
         throw new Error('Failed to download video');
       }
+
       await message.bot.sendMessage(
         message.chat,
         {
           video: { url: filePath },
-          caption: `*Video Info:* ${info.title}\n*Duration:* ${info.duration} seconds\n*Views:* ${info.views}`,
-          mimetype: 'video/mp4',
+          caption: `*Title:* ${info.title}\n*Duration:* ${info.duration} seconds\n*Views:* ${info.views}`,
         },
         { quoted: message }
       );
