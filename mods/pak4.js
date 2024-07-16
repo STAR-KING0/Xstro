@@ -1,54 +1,80 @@
-// yt.js
-const YouTube = require('youtubei.js');
-const ytdl = require('ytdl-core');
-const fs = require('fs').promises;
-const FileType = require('file-type');
+const { Innertube, UniversalCache, Utils } = require('youtubei.js');
+const { existsSync, mkdirSync, createWriteStream } = require('fs');
 const path = require('path');
-const youtube = new YouTube.Client();
 
-async function ensureTempDir() {
-  const tempDir = path.join(__dirname, 'temp');
-  await fs.mkdir(tempDir, { recursive: true });
-  return tempDir;
-}
-
-async function downloadMedia(url, type) {
-  const video = await youtube.getVideo(url);
-  const videoId = video.id;
-  const title = video.title.replace(/[^a-zA-Z0-9]/g, '_');
-  const fileType = type === 'audio' ? 'highestaudio' : 'highestvideo';
-  const fileName = `${title}.${type === 'audio' ? 'mp3' : 'mp4'}`;
-  const tempDir = await ensureTempDir();
-  const filePath = path.join(tempDir, fileName);
-
-  const stream = ytdl(videoId, { quality: fileType });
-  const fileWriteStream = fs.createWriteStream(filePath);
-
-  await new Promise((resolve, reject) => {
-    stream.pipe(fileWriteStream);
-    stream.on('end', resolve);
-    stream.on('error', reject);
-  });
-
-  const fileTypeInfo = await FileType.fromFile(filePath);
-
-  if (!fileTypeInfo) {
-    throw new Error('Unable to determine file type');
+class YouTubeModule {
+  constructor() {
+    this.ytInstance = null;
   }
 
-  const finalFileName = `${title}.${fileTypeInfo.ext}`;
-  const finalFilePath = path.join(tempDir, finalFileName);
-  await fs.rename(filePath, finalFilePath);
+  async initialize() {
+    if (!this.ytInstance) {
+      this.ytInstance = await Innertube.create({
+        cache: new UniversalCache(false),
+        generate_session_locally: true,
+      });
+    }
+  }
 
-  return finalFilePath;
+  async getInfo(videoId, options = {}) {
+    try {
+      await this.initialize();
+      const videoInfo = await this.ytInstance.getInfo(videoId, options);
+      const qualityLabels = videoInfo.streaming_data.formats.map(format => format.quality_label);
+      const preferredQuality = qualityLabels.includes('360p') ? '360p' : 'best';
+
+      return {
+        status: true,
+        title: videoInfo.basic_info.title,
+        id: videoInfo.basic_info.id,
+        quality: qualityLabels,
+        pref_Quality: preferredQuality,
+        duration: videoInfo.basic_info.duration,
+        description: videoInfo.basic_info.short_description,
+        keywords: videoInfo.basic_info.keywords,
+        thumbnail: videoInfo.basic_info.thumbnail[0].url,
+        author: videoInfo.basic_info.author,
+        views: videoInfo.basic_info.view_count,
+        likes: videoInfo.basic_info.like_count,
+        category: videoInfo.basic_info.category,
+        channel: videoInfo.basic_info.channel,
+        basic_info: videoInfo,
+      };
+    } catch (error) {
+      console.error('Error in getInfo:', error.message);
+      return { status: false, error: error.message };
+    }
+  }
+
+  async download(videoId, options = { type: 'video', quality: 'best', format: 'mp4' }) {
+    try {
+      await this.initialize();
+      const { type = 'video', quality = 'best', format = 'mp4' } = options;
+      const downloadStream = await this.ytInstance.download(videoId, {
+        type,
+        quality: type === 'audio' ? 'best' : quality,
+        format,
+      });
+
+      const tempDir = path.join(__dirname, 'temp');
+      if (!existsSync(tempDir)) {
+        mkdirSync(tempDir, { recursive: true });
+      }
+
+      const fileExtension = type === 'video' ? 'mp4' : 'm4a';
+      const filePath = path.join(tempDir, `ytvideo_${videoId}.${fileExtension}`);
+      const fileStream = createWriteStream(filePath);
+
+      for await (const chunk of Utils.streamToIterable(downloadStream)) {
+        fileStream.write(chunk);
+      }
+
+      return filePath;
+    } catch (error) {
+      console.error('Error in download:', error.message);
+      return false;
+    }
+  }
 }
 
-async function downloadVideo(url) {
-  return await downloadMedia(url, 'video');
-}
-
-async function downloadAudio(url) {
-  return await downloadMedia(url, 'audio');
-}
-
-module.exports = { downloadVideo, downloadAudio };
+module.exports = new YouTubeModule();
