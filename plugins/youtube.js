@@ -1,4 +1,4 @@
-const { bot } = require('../lib');
+const { bot, AdReply } = require('../lib');
 const ytModule = require('../mods/pak4');
 const fs = require('fs').promises;
 
@@ -12,7 +12,7 @@ function extractVideoId(url) {
 bot(
   {
     pattern: 'ytv',
-    desc: 'Downloads YouTube videos.',
+    desc: 'Downloads YouTube videos with audio.',
     type: 'youtube',
   },
   async (message, match) => {
@@ -33,18 +33,27 @@ bot(
         throw new Error('Failed to fetch video info');
       }
 
-      await message.reply(`*Downloading: ${info.title}*`);
-      const filePath = await ytModule.download(videoId, { type: 'video', quality: '360p' });
+      await message.reply(`*Downloading: ${info.title}*\n*This may take a while depending on the video size.*`);
+
+      // Ensure we get a format with both video and audio
+      const filePath = await ytModule.download(videoId, {
+        type: 'video',
+        quality: 'best',
+        format: 'mp4',
+      });
 
       if (!filePath) {
         throw new Error('Failed to download video');
       }
 
+      await message.reply('*Upload starting. This may take a while for larger videos.*');
+
       await message.bot.sendMessage(
         message.chat,
         {
           video: { url: filePath },
-          caption: `*Title:* ${info.title}\n*Duration:* ${info.duration} seconds\n*Views:* ${info.views}`,
+          caption: `*Video Info:* ${info.title}\n*Duration:* ${info.duration} seconds\n*Views:* ${info.views}`,
+          mimetype: 'video/mp4',
         },
         { quoted: message }
       );
@@ -93,6 +102,9 @@ bot(
           audio: { url: filePath },
           mimetype: 'audio/mpeg',
           caption: `*Title:* ${info.title}\n*Duration:* ${info.duration} seconds`,
+        },
+        {
+          contextInfo: AdReply,
         },
         { quoted: message }
       );
