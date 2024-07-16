@@ -33,7 +33,7 @@ bot(
         throw new Error('Failed to fetch video info');
       }
 
-      await message.reply(`*Downloading: ${info.title}*\n*This may take a while depending on the video size.*`);
+      await message.reply(`*Downloading: ${info.title}*`);
 
       // Ensure we get a format with both video and audio
       const filePath = await ytModule.download(videoId, {
@@ -45,9 +45,6 @@ bot(
       if (!filePath) {
         throw new Error('Failed to download video');
       }
-
-      await message.reply('*Upload starting. This may take a while for larger videos.*');
-
       await message.bot.sendMessage(
         message.chat,
         {

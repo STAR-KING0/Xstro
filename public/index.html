@@ -1,430 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
- <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" href="https://avatars.githubusercontent.com/u/173537772?v=4" type="image/x-icon" />
-  <title>Xstro Bot - Advanced AI Assistant</title>
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
-  <style>
-   :root {
-    --primary-color: #000000;
-    --secondary-color: #ffffff;
-    --text-color: #333333;
-    --bg-color: #f4f4f4;
-   }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" id="myViewport" content="maximum-scale=1" />
+    <script>
+      if (screen.width > 768) {
+        var mvp = document.getElementById('myViewport');
+        mvp.setAttribute('content', 'maximum-scale=0.80');
+      }
+    </script>
+    <meta name="description" content="Xstro, An Advanced WhatsApp Bot, Send, Receive, Auto Messages & More Features." />
+    <link rel="shortcut icon" href="https://avatars.githubusercontent.com/u/173537772?v=4" type="image/x-icon" />
+    <title>XstroWeb</title>
+    <meta property="og:image" content="https://avatars.githubusercontent.com/u/173537772?v=4" />
+    <meta property="og:title" content="Xstro Md" />
+    <meta property="og:description" content="Xstro, An Advanced WhatsApp Bot, Send, Receive, Auto Messages & More Features." />
+    <link rel="stylesheet" href="index.css" />
+  </head>
 
-   * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-   }
+  <body>
+    <!-- Header -->
+    <section id="header">
+      <div class="header container">
+        <div class="nav-bar">
+          <div class="brand">
+            <a href="#hero">
+              <h1><span>X</span>st</span>ro</h1>
+            </a>
+          </div>
+          <div class="nav-list">
+            <div class="hamburger">
+              <div class="bar"></div>
+            </div>
+            <ul>
+              <li><a href="#hero" data-after="Home">Home</a></li>
+              <li><a href="https://github.com/AstroFx0011/Xstro/tree/master/doc" data-after="Service">Docs</a></li>
+              <li><a href="https://github.com/AstroFx0011/Xstro" data-after="Source Code">Repo</a></li>
+              <li><a href="https://whatsapp.com/channel/0029VaPGt3QEwEjpBXT4Rv0z" data-after="WhatsApp Channel">Support Group</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- End Header -->
 
-   body {
-    font-family: Ubuntu;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    line-height: 1.6;
-   }
-
-   .container {
-    width: 90%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-   }
-
-   header {
-    background-color: var(--secondary-color);
-    color: var(--secondary-color);
-    padding: 10px 0;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-   }
-
-   .logo {
-    display: flex;
-    align-items: center;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    text-decoration: none;
-   }
-
-   .logo img {
-    height: 40px;
-    margin-right: 10px;
-   }
-
-   nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-   }
-
-   .nav-links {
-    display: flex;
-    list-style-type: none;
-   }
-
-   .nav-links li {
-    margin-left: 20px;
-   }
-
-   .nav-links li a {
-    color: var(--text-color);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s ease;
-   }
-
-   .nav-links li a:hover {
-    color: #cccccc;
-   }
-
-   .hamburger {
-    display: none;
-    cursor: pointer;
-   }
-
-   .hamburger div {
-    width: 25px;
-    height: 3px;
-    background-color: var(--primary-color);
-    margin: 5px;
-    transition: all 0.3s ease;
-   }
-
-   .hero {
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-     url('https://raw.githubusercontent.com/AstroFx0011/Xstro/master/public/imgs/bg.jpg') center/cover no-repeat;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    color: var(--secondary-color);
-   }
-
-   .hero h1 {
-    font-size: 3.5rem;
-    margin-bottom: 20px;
-   }
-
-   .hero p {
-    font-size: 1.2rem;
-    max-width: 600px;
-    margin: 0 auto 30px;
-   }
-
-   .cta-button {
-    margin: 10px;
-    display: inline-block;
-    background-color: var(--secondary-color);
-    color: var(--primary-color);
-    padding: 12px 30px;
-    text-decoration: none;
-    border-radius: 3px;
-    font-weight: 500;
-    transition: background-color 0.3s ease;
-   }
-
-   .cta-button:hover {
-    background-color: #cccccc;
-   }
-
-   section {
-    padding: 80px 0;
-   }
-
-   h2 {
-    font-size: 2.5rem;
-    margin-bottom: 30px;
-    text-align: center;
-   }
-
-   .features {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-   }
-
-   .feature {
-    flex-basis: calc(33.333% - 20px);
-    background-color: var(--secondary-color);
-    padding: 30px;
-    border-radius: 5px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 30px;
-    transition: transform 0.3s ease;
-   }
-
-   .feature:hover {
-    transform: translateY(-5px);
-   }
-
-   .feature h3 {
-    font-size: 1.5rem;
-    margin-bottom: 15px;
-   }
-
-   .testimonials {
-    background-color: var(--primary-color);
-    color: var(--secondary-color);
-   }
-
-   .testimonial {
-    text-align: center;
-    max-width: 800px;
-    margin: 0 auto;
-   }
-
-   .testimonial p {
-    font-style: italic;
-    font-size: 1.2rem;
-    margin-bottom: 20px;
-   }
-
-   .testimonial cite {
-    font-weight: 500;
-   }
-
-   footer {
-    background-color: var(--primary-color);
-    color: var(--secondary-color);
-    text-align: center;
-    padding: 20px 0;
-   }
-
-   @media screen and (max-width: 768px) {
-    .nav-links {
-     position: absolute;
-     right: 0px;
-     height: 92vh;
-     top: 8vh;
-     background-color: var(--primary-color);
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     width: 50%;
-     transform: translateX(100%);
-     transition: transform 0.5s ease-in;
-    }
-
-    .nav-links li {
-     opacity: 0;
-     margin: 20px 0;
-    }
-
-    .hamburger {
-     display: block;
-    }
-
-    .nav-active {
-     transform: translateX(0%);
-    }
-
-    @keyframes navLinkFade {
-     from {
-      opacity: 0;
-      transform: translateX(50px);
-     }
-     to {
-      opacity: 1;
-      transform: translateX(0px);
-     }
-    }
-
-    .toggle .line1 {
-     transform: rotate(-45deg) translate(-5px, 6px);
-    }
-
-    .toggle .line2 {
-     opacity: 0;
-    }
-
-    .toggle .line3 {
-     transform: rotate(45deg) translate(-5px, -6px);
-    }
-
-    .feature {
-     flex-basis: 100%;
-    }
-   }
-  </style>
- </head>
- <body>
-  <header>
-   <div class="container">
-    <nav>
-     <a href="https://github.com/AstroFx0011/Xstro" class="logo">
-      <img src="https://avatars.githubusercontent.com/u/173537772?v=4" alt="Logo" />
-      xstro
-     </a>
-     <ul class="nav-links">
-      <li><a href="https://github.com/AstroFx0011/Xstro">Github</a></li>
-      <li><a href="#features">Features</a></li>
-      <li><a href="#contact">Contact</a></li>
-     </ul>
-     <div class="hamburger">
-      <div class="line1"></div>
-      <div class="line2"></div>
-      <div class="line3"></div>
-     </div>
-    </nav>
-   </div>
-  </header>
-
-  <section class="hero">
-   <div class="container">
-    <h1>A Simple WhatsApp Bot</h1>
-    <p>Xstro Multi Device WhatsApp Is Here, Made Just For You.</p>
-    <a href="#" class="cta-button">Deployments Platforms</a>
-    <a href="#" class="cta-button">Get Session Via QR Code</a>
-    <a href="#" class="cta-button">Get Session Via Pairing</a>
-    <a href="#" class="cta-button">Join Community</a>
-   </div>
-  </section>
-
-  <section id="about">
-   <div class="container">
-    <h2>About Xstro Bot</h2>
-    <p>
-     Xstro is a Simple WhatsApp bot designed to elevate user interactions on the messaging platform. Built using the
-     robust @whiskeysockets/baileys library, Xstro offers a comprehensive suite of features tailored to meet both
-     individual and business communication needs, establishing itself as a vital tool for efficient and intelligent
-     messaging.
-    </p>
-   </div>
-  </section>
-
-  <section id="features">
-   <div class="container">
-    <h2>Features</h2>
-    <div class="features">
-     <div class="feature">
-      <h3>Media Handling</h3>
-      <p>
-       The bot supports a wide range of media types, including images, videos, documents, and voice notes. This
-       flexibility allows users to share and receive information in various formats, enhancing the richness and
-       effectiveness of communication.
-      </p>
-     </div>
-     <div class="feature">
-      <h3>API Integration</h3>
-      <p>
-       Xstro's ability to integrate with multiple APIs makes it a powerful tool for automation and data retrieval. Users
-       can fetch real-time information, perform tasks.
-      </p>
-     </div>
-     <div class="feature">
-      <h3>Security</h3>
-      <p>
-       The bot incorporates end-to-end encryption and secure data handling practices thanks to @whiskeysockets/baileys,
-       to ensure that all communications remain private and protected. This makes it a reliable choice for handling
-       sensitive information.
-      </p>
-     </div>
-     <div class="feature">
-      <h3>Customization and Flexibility</h3>
-      <p>
-       Xstro offers extensive customization options, allowing users to tailor the bot's functionality to their specific
-       needs. From custom commands to personalized responses, Xstro can be adapted to suit various use cases, making it
-       versatile and user-centric.
-      </p>
-     </div>
-     <div class="feature">
-      <h3>Multi-Device Support</h3>
-      <p>
-       Xstro supports multiple devices, ensuring a seamless and consistent experience across different platforms. This
-       feature is particularly useful for businesses that need to manage communications from various endpoints.
-      </p>
-     </div>
-    </div>
-   </div>
-  </section>
-
-  <section id="contact">
-   <div class="container">
-    <h2>Contact Us</h2>
-    <p>Get in touch with us today!</p>
-    <p>Email: <a href="mailto:astrofx0011@gmail.com">info@xstrobot.com</a></p>
-    <a href="https://github.com/AstroFx0011/Xstro" class="cta-button">View On Github</a>
-   </div>
-  </section>
-
-  <footer>
-   <div class="container">
-    <p>&copy; 2024 Xstro Bot. All rights reserved.</p>
-   </div>
-  </footer>
-
-  <script>
-   gsap.registerPlugin(ScrollTrigger)
-
-   gsap.from('.hero h1', {
-    opacity: 0,
-    y: 50,
-    duration: 1,
-    delay: 0.5,
-   })
-
-   gsap.from('.hero p', {
-    opacity: 0,
-    y: 50,
-    duration: 1,
-    delay: 0.8,
-   })
-
-   gsap.from('.hero .cta-button', {
-    opacity: 0,
-    y: 50,
-    duration: 1,
-    delay: 1.1,
-   })
-
-   gsap.from('.feature', {
-    scrollTrigger: {
-     trigger: '#features',
-     start: 'top center',
-    },
-    opacity: 0,
-    y: 50,
-    stagger: 0.2,
-    duration: 0.8,
-   })
-
-   gsap.from('.testimonial', {
-    scrollTrigger: {
-     trigger: '#testimonials',
-     start: 'top center',
-    },
-    opacity: 0,
-    y: 50,
-    duration: 1,
-   })
-
-   const hamburger = document.querySelector('.hamburger')
-   const navLinks = document.querySelector('.nav-links')
-   const links = document.querySelectorAll('.nav-links li')
-
-   hamburger.addEventListener('click', () => {
-    navLinks.classList.toggle('nav-active')
-    hamburger.classList.toggle('toggle')
-
-    links.forEach((link, index) => {
-     if (link.style.animation) {
-      link.style.animation = ''
-     } else {
-      link.style.animation = `navLinkFade 0.5s ease forwards ${index / 7 + 0.3}s`
-     }
-    })
-   })
-  </script>
- </body>
+    <!-- Hero Section  -->
+    <section id="hero">
+      <div class="hero container">
+        <div>
+          <h1>Xstro Deployments<span></span></h1>
+          <a href="https://astrofx0011.github.io/web-qr-scan/" type="button" class="cta">Scan Qr</a>
+          <a href="https://web-pair.onrender.com/pair" type="button" class="cta">Pair Code</a>
+          <a href="https://dashboard.render.com/web/new" type="button" class="cta">Render</a>
+          <a href="https://app.koyeb.com/?service_type=web&step=review&type=git&repository=github.com%2FAstroFx0011%2FXstro&instance_type=free&regions=fra&env[SESSION_ID]&env[OWNER_NUMBER]=923184474176&env[MONGODB_URI]&&env[OWNER_NAME]=Suhail&env[KOYEB_API]&env[PREFIX]=.&env[WAPRESENCE]&env[AUTO_READ_STATUS]=false&env[DISABLE_PM]=false&env[PACK_AUTHER]=whatsapp+bot&env[PACK_NAME]=Suhail+MD&env[STYLE]=0&env[MODE]=private&env[READ_MESSAGE]=false&env[THEME]=SUHAIL&env[WARN_COUNT]=3&env[BLOCK_JID]=null&env[TIME_ZONE]=Asia/Karachi&name=suhail-md&env[KOYEB_NAME]=suhail-md&env[SUDO]=null&env[THUMB_IMAGE]=https://i.imgur.com/NpA3ZsJ.jpeg" type="button" class="cta">Koyeb</a>
+          <a href="https://github.com/codespaces/new?skip_quickstart=true&machine=standardLinux32gb&repo=827896612&ref=master&geo=UsWest" type="button" class="cta">Codespaces</a>
+          <a href="https://www.heroku.com/deploy?template=https://github.com/AstroFx0011/Xstro" type="button" class="cta">Heroku</a>
+          <a href="https://railway.app/" type="button" class="cta">Railway</a>
+          <a href="https://github.com/AstroFx0011/Xstro" type="button" class="cta">Repository</a>
+        </div>
+      </div>
+    </section>
+    <!-- Footer -->
+    <section id="footer">
+      <div class="footer container">
+        <div class="brand">
+          <h1><span></span>XSTRO<span> </span>BOT</h1>
+        </div>
+        <h2>A Simple & Complex WhatsApp Bot...</h2>
+        <div class="social-icon"></div>
+        <p>Copyright © 2024 AstroFX0011. All rights reserved</p>
+      </div>
+    </section>
+    <!-- End Footer -->
+    <script src="index.js"></script>
+  </body>
 </html>
