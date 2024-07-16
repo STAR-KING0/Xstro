@@ -82,7 +82,7 @@ async function instaStory(url) {
     throw error;
   }
 }
-//=========[FACEBOOK]===============\\
+
 async function facebook(url) {
   try {
     const apiKey = 'a7P3X3Ix';
@@ -122,6 +122,7 @@ async function facebook(url) {
     throw error;
   }
 }
+
 
 async function twitter(url) {
   try {
