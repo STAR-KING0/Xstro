@@ -30,7 +30,7 @@ Index(
   {
     pattern: 'owner',
     desc: 'To check ping',
-    category: 'general',
+    type: 'user',
   },
   sendOwnerContact
 );
